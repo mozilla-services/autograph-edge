@@ -6,6 +6,62 @@
 #
 version: 2
 jobs:
+  test:
+    docker:
+        - image: golang:1.10
+    working_directory: /root/go/src/go.mozilla.org/autograph-edge
+    environment:
+        GOPATH: "/root/go"
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      - run:
+          name: Run Autograph
+          command: |
+              go get go.mozilla.org/autograph
+              $GOPATH/bin/autograph -c $GOPATH/src/go.mozilla.org/autograph/autograph.yaml
+          background: true
+
+      - run:
+          name: Run Autograph Edge
+          command: |
+              go get -u golang.org/x/vgo
+              $GOPATH/bin/vgo install go.mozilla.org/autograph-edge
+              $GOPATH/bin/autograph-edge -c autograph-edge.yaml
+          background: true
+
+      - run:
+          name: Sign an APK
+          command: |
+              apt update
+              apt install -y netcat
+              while ! nc -z localhost 8080; do
+                echo -n "."
+                sleep 1 # wait for a sec before checking again
+              done
+              curl -F "input=@test.apk" -o /tmp/signed.apk \
+                -H "Authorization: dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd" \
+                http://localhost:8080/sign
+
+      - save_cache:
+          key: apk-v1-{{ .Branch }}-{{epoch}}
+          paths:
+            - /tmp/signed.apk
+
+  verify:
+    docker:
+      - image: circleci/android:api-25-node8-alpha
+    steps:
+      - restore_cache:
+          key: apk-v1-{{ .Branch }}
+      - run:
+          name: Verify APK signature
+          command: |
+              sudo apt update
+              sudo apt install -y android-sdk-build-tools
+              /opt/android/sdk/build-tools/27.0.3/apksigner verify --verbose /tmp/signed.apk
+
   build:
     docker:
       - image: docker:18.02.0-ce
@@ -38,58 +94,6 @@ jobs:
           key: v1-{{ .Branch }}-{{epoch}}
           paths:
             - /cache/docker.tar
-
-  test:
-    docker:
-      - image: docker:18.02.0-ce
-    working_directory: /dockerflow
-    steps:
-      - setup_remote_docker
-      - restore_cache:
-          key: v1-{{.Branch}}
-      - run:
-          name: Restore Docker image cache
-          command: docker load -i /cache/docker.tar
-
-      - run:
-          name: Run Container
-          command: docker run app:build
-          background: true
-
-      - run:
-          name: Install packages
-          command: |
-              sudo apt-get update
-              sudo apt-get install -y golang curl
-      - run:
-          name: Run Autograph
-          command: |
-              go get go.mozilla.org/autograph
-              autograph -c $GOPATH/src/go.mozilla.org/autograph/autograph.yaml
-          background: true
-
-      - run:
-          name: Sign an APK
-          command: |
-              curl -F "input=@test.apk" -o /tmp/signed.apk \
-                -H "Authorization: dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd" \
-                http://localhost:8080/sign
-
-      - save_cache:
-          key: apk-v1-{{ .Branch }}-{{epoch}}
-          paths:
-            - /tmp/signed.apk
-
-  verify:
-    docker:
-      - image: circleci/android
-    steps:
-      - restore_cache:
-          key: apk-v1-{{ .Branch }}-{{epoch}}
-      - run:
-          name: Verify APK signature
-          command: apksigner verify --verbose /tmp/signed.apk
-
   deploy:
     docker:
       - image: docker:18.02.0-ce
@@ -120,32 +124,33 @@ jobs:
 
 workflows:
   version: 2
-  build-test-deploy:
+  test-verify-build-deploy:
     jobs:
-      - build:
-          filters:
-            tags:
-              only: /.*/
-
       - test:
-          requires:
-            - build
           filters:
             tags:
               only: /.*/
 
       - verify:
           requires:
-            - build
             - test
+          filters:
+            tags:
+              only: /.*/
+
+      - build:
+          requires:
+            - test
+            - verify
           filters:
             tags:
               only: /.*/
 
       - deploy:
           requires:
-            - build
             - test
+            - verify
+            - build
           filters:
             tags:
               only: /.*/
