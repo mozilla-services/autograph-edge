@@ -57,6 +57,11 @@ jobs:
           background: true
 
       - run:
+          name: Install packages
+          command: |
+              sudo apt-get update
+              sudo apt-get install -y golang curl
+      - run:
           name: Run Autograph
           command: |
               go get go.mozilla.org/autograph
@@ -77,7 +82,7 @@ jobs:
 
   verify:
     docker:
-      - image: circleci/android:api-25-node8-alpha
+      - image: circleci/android
     steps:
       - restore_cache:
           key: apk-v1-{{ .Branch }}-{{epoch}}
@@ -125,6 +130,14 @@ workflows:
       - test:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+
+      - verify:
+          requires:
+            - build
+            - test
           filters:
             tags:
               only: /.*/
