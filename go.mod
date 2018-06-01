@@ -1,0 +1,31 @@
+module go.mozilla.org/autograph-edge
+
+require (
+	cloud.google.com/go v0.23.0
+	github.com/aws/aws-sdk-go v1.13.59
+	github.com/fatih/color v1.7.0
+	github.com/golang/protobuf v1.1.0
+	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
+	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
+	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
+	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
+	github.com/mozilla-services/yaml v0.0.0-20180223174101-3cf514db71fc
+	github.com/pkg/errors v0.8.0
+	github.com/sirupsen/logrus v1.0.5
+	go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719
+	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a
+	go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef
+	go.mozilla.org/mozlog v0.0.0-20170222151521-4bb13139d403
+	go.mozilla.org/mozlogrus v1.0.0
+	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7
+	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
+	golang.org/x/crypto v0.0.0-20180531191117-5ba7f6308246
+	golang.org/x/net v0.0.0-20180530234432-1e491301e022
+	golang.org/x/oauth2 v0.0.0-20180529203656-ec22f46f877b
+	golang.org/x/sys v0.0.0-20180525142821-c11f84a56e43
+	golang.org/x/text v0.3.0
+	google.golang.org/api v0.0.0-20180531231311-f71c6d4abd97
+	google.golang.org/genproto v0.0.0-20180531194445-4065a77fc542
+	google.golang.org/grpc v1.12.0
+	gopkg.in/yaml.v2 v2.2.1
+)
