@@ -1,4 +1,4 @@
-all: lint vet test build
+all: lint vet test install
 
 install:
 	vgo install go.mozilla.org/autograph-edge
