@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strings"
 
 	"github.com/mozilla-services/yaml"
 	"github.com/pkg/errors"
@@ -123,8 +124,15 @@ func sigHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	inputSha256 := fmt.Sprintf("%x", sha256.Sum256(input))
 
+	// prepare an x-forwarded-for by reusing the values received and adding the client IP
+	clientip := strings.Split(r.RemoteAddr, ":")
+	xff := strings.Join([]string{
+		r.Header.Get("X-Forwarded-For"),
+		strings.Join(clientip[:len(clientip)-1], ":")},
+		",")
+
 	// let's get this file signed!
-	output, err := callAutograph(auth, input)
+	output, err := callAutograph(auth, input, xff)
 	if err != nil {
 		log.WithFields(log.Fields{"rid": rid, "input_sha256": inputSha256}).Error(err)
 		http.Error(w, "failed to call autograph for signature", http.StatusBadGateway)

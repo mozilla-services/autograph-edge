@@ -30,7 +30,7 @@ type signatureresponse struct {
 	X5U        string `json:"x5u,omitempty"`
 }
 
-func callAutograph(auth authorization, body []byte) (signedBody []byte, err error) {
+func callAutograph(auth authorization, body []byte, xff string) (signedBody []byte, err error) {
 	var requests []signaturerequest
 	request := signaturerequest{
 		Input: base64.StdEncoding.EncodeToString(body),
@@ -63,6 +63,10 @@ func callAutograph(auth authorization, body []byte) (signedBody []byte, err erro
 	payloadhash.Write(reqBody)
 	hawkAuth.SetHash(payloadhash)
 	req.Header.Set("Authorization", hawkAuth.RequestHeader())
+
+	// Reuse the X-Forwarded-For received from the client over to
+	// autograph so we can trace requests back to client from its logs
+	req.Header.Set("X-Forwarded-For", xff)
 
 	// make the request
 	cli := &http.Client{}
