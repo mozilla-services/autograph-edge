@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/mozilla-services/yaml"
@@ -67,7 +68,7 @@ func main() {
 
 	http.HandleFunc("/sign", sigHandler)
 	http.HandleFunc("/__version__", versionHandler)
-	http.HandleFunc("/__heartbeat__", versionHandler)
+	http.HandleFunc("/__heartbeat__", heartbeatHandler)
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
 
 	log.Info("start server on port 8080")
@@ -193,6 +194,31 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonVersion)
 }
 
+// send a GET request to the autograph heartbeat endpoint and
+// evaluate its status code before responding
+func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
+	u, err := url.Parse(conf.URL)
+	if err != nil {
+		log.Printf("failed to parse conf url %q: %v", conf.URL, err)
+		http.Error(w, "failed to parse conf URL", http.StatusInternalServerError)
+		return
+	}
+	heartbeatURL := fmt.Sprintf("%s://%s/__heartbeat__", u.Scheme, u.Host)
+	resp, err := http.Get(heartbeatURL)
+	if err != nil {
+		errMsg := fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
+		http.Error(w, errMsg, http.StatusBadGateway)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		errMsg := fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
+		log.Println(errMsg)
+		http.Error(w, errMsg, http.StatusBadGateway)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("all good"))
+}
 func makeRequestID() string {
 	rid := make([]rune, 16)
 	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
