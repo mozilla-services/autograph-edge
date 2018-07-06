@@ -19,6 +19,9 @@ jobs:
       - run:
           name: Run Autograph
           command: |
+              apt update
+              apt install -y libltdl-dev
+              while ! nc -z localhost 8080; do
               go get go.mozilla.org/autograph
               $GOPATH/bin/autograph -c $GOPATH/src/go.mozilla.org/autograph/autograph.yaml
           background: true
@@ -34,7 +37,6 @@ jobs:
       - run:
           name: Sign an APK
           command: |
-              apt update
               apt install -y netcat
               while ! nc -z localhost 8080; do
                 echo -n "."
