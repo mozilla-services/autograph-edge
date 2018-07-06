@@ -223,12 +223,15 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 		st.Checks.CheckAutographHeartbeat = false
 		st.Status = false
 		st.Details = fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
+		goto done
 	}
 	if resp.StatusCode != http.StatusOK {
 		st.Checks.CheckAutographHeartbeat = false
 		st.Status = false
 		st.Details = fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
+		goto done
 	}
+done:
 	if !st.Status {
 		log.Println(st.Details)
 		w.WriteHeader(http.StatusServiceUnavailable)
