@@ -17,11 +17,18 @@ jobs:
       - setup_remote_docker
 
       - run:
-          name: Run Autograph
+          name: Install Packages
           command: |
               apt update
-              apt install -y libltdl-dev
-              while ! nc -z localhost 8080; do
+              apt install -y libltdl-dev netcat
+
+      - run:
+          name: Install Autograph
+          command: go get go.mozilla.org/autograph
+
+      - run:
+          name: Run Autograph
+          command: |
               go get go.mozilla.org/autograph
               $GOPATH/bin/autograph -c $GOPATH/src/go.mozilla.org/autograph/autograph.yaml
           background: true
