@@ -2,12 +2,14 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/mozilla-services/yaml"
@@ -67,7 +69,7 @@ func main() {
 
 	http.HandleFunc("/sign", sigHandler)
 	http.HandleFunc("/__version__", versionHandler)
-	http.HandleFunc("/__heartbeat__", versionHandler)
+	http.HandleFunc("/__heartbeat__", heartbeatHandler)
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
 
 	log.Info("start server on port 8080")
@@ -193,6 +195,56 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonVersion)
 }
 
+type heartbeat struct {
+	Status bool `json:"status"`
+	Checks struct {
+		CheckAutographHeartbeat bool `json:"check_autograph_heartbeat"`
+	} `json:"checks"`
+	Details string `json:"details"`
+}
+
+// send a GET request to the autograph heartbeat endpoint and
+// evaluate its status code before responding
+func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
+	var st heartbeat
+	// assume the best, change if we encounter errors
+	st.Status = true
+	st.Checks.CheckAutographHeartbeat = true
+
+	u, err := url.Parse(conf.URL)
+	if err != nil {
+		log.Printf("failed to parse conf url %q: %v", conf.URL, err)
+		http.Error(w, "failed to parse conf URL", http.StatusInternalServerError)
+		return
+	}
+	heartbeatURL := fmt.Sprintf("%s://%s/__heartbeat__", u.Scheme, u.Host)
+	resp, err := http.Get(heartbeatURL)
+	if err != nil {
+		st.Checks.CheckAutographHeartbeat = false
+		st.Status = false
+		st.Details = fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
+		goto done
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		st.Checks.CheckAutographHeartbeat = false
+		st.Status = false
+		st.Details = fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
+		goto done
+	}
+done:
+	if !st.Status {
+		log.Println(st.Details)
+		w.WriteHeader(http.StatusServiceUnavailable)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	jsonSt, err := json.Marshal(st)
+	if err != nil {
+		log.Fatal("failed to marshal heartbeat status: %v", err)
+	}
+	w.Write(jsonSt)
+}
 func makeRequestID() string {
 	rid := make([]rune, 16)
 	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")

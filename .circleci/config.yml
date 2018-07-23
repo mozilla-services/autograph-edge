@@ -17,6 +17,16 @@ jobs:
       - setup_remote_docker
 
       - run:
+          name: Install Packages
+          command: |
+              apt update
+              apt install -y libltdl-dev netcat
+
+      - run:
+          name: Install Autograph
+          command: go get go.mozilla.org/autograph
+
+      - run:
           name: Run Autograph
           command: |
               go get go.mozilla.org/autograph
@@ -34,8 +44,6 @@ jobs:
       - run:
           name: Sign an APK
           command: |
-              apt update
-              apt install -y netcat
               while ! nc -z localhost 8080; do
                 echo -n "."
                 sleep 1 # wait for a sec before checking again
