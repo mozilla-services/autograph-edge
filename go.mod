@@ -4,10 +4,14 @@ require (
 	cloud.google.com/go v0.23.0
 	github.com/aws/aws-sdk-go v1.13.59
 	github.com/fatih/color v1.7.0
+	github.com/go-ini/ini v1.38.1 // indirect
 	github.com/golang/protobuf v1.1.0
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
+	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
+	github.com/mattn/go-colorable v0.0.9 // indirect
+	github.com/mattn/go-isatty v0.0.3 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
 	github.com/mozilla-services/yaml v0.0.0-20180223174101-3cf514db71fc
 	github.com/pkg/errors v0.8.0
