@@ -233,6 +233,7 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 		goto done
 	}
 done:
+	w.Header().Set("Content-Type", "application/json")
 	if !st.Status {
 		log.Println(st.Details)
 		w.WriteHeader(http.StatusServiceUnavailable)
