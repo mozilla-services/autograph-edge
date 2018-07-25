@@ -3,12 +3,11 @@ MAINTAINER Mozilla
 EXPOSE 8080
 
 RUN addgroup --gid 10001 app && \
-
     adduser --gid 10001 --uid 10001 \
     --home /app --shell /sbin/nologin \
-    --disabled-password app && \
+    --disabled-password app
 
-    apt update && \
+RUN apt update && \
     apt -y upgrade && \
     apt -y install clang && \
     apt-get clean
