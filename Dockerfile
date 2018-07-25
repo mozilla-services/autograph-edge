@@ -10,6 +10,7 @@ RUN addgroup --gid 10001 app && \
 
     apt update && \
     apt -y upgrade && \
+    apt -y install clang && \
     apt-get clean
 
 ADD . $GOPATH/src/go.mozilla.org/autograph-edge
@@ -19,6 +20,10 @@ ADD version.json /app
 RUN go get -u golang.org/x/vgo && \
     cd $GOPATH/src/go.mozilla.org/autograph-edge && \
     make install
+
+RUN apt-get -y remove clang && \
+    apt-get clean && \
+    apt-get -y autoremove
 
 USER app
 WORKDIR /app
