@@ -40,8 +40,15 @@ autograph (therefore these configuration items must come from the autograph
 config).
 
 If the authorization is for an add-on, it must also contain an `addonid`, which
-is the ID of the add-on being signed. The sample configuration file in this
-repository can get you started.
+is the ID of the add-on being signed. It can also include the optional params:
+
+* `addonpkcs7digest`, a string of the PKCS7 digest algorithm to use
+  (`"SHA1"` or `"SHA256"`). Defaults to `"SHA1"`.
+* `addoncosealgorithms`, an array of strings for COSE Algorithms to
+  sign the addon with. Defaults to an empty list [].
+
+The sample configuration file in this repository can get you started.
+
 
 Note that the token must be longer than 60 characters. You should use `openssl
 rand -hex 32` to generate it.

@@ -37,11 +37,13 @@ type configuration struct {
 }
 
 type authorization struct {
-	Token   string
-	Signer  string
-	User    string
-	Key     string
-	AddonID string
+	Token               string
+	Signer              string
+	User                string
+	Key                 string
+	AddonID             string
+	AddonPKCS7Digest    string
+	AddonCOSEAlgorithms []string
 }
 
 var jsonVersion []byte

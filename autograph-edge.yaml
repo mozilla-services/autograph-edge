@@ -10,6 +10,15 @@ authorizations:
       key: fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu
       signer: extensions-ecdsa
 
+    - token: b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880
+      addonid: mycoseaddon@allizom.org
+      addonpkcs7digest: SHA256
+      addoncosealgorithms:
+      - "ES256"
+      user: alice
+      key: fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu
+      signer: extensions-ecdsa
+
     # the following token is allowed to sign an android APK using a specific
     # signer, which maps to a specific private key. since android uses key pinning,
     # this signer cannot sign a different android application

@@ -37,7 +37,17 @@ func callAutograph(auth authorization, body []byte, xff string) (signedBody []by
 		KeyID: auth.Signer,
 	}
 	if auth.AddonID != "" {
-		request.Options = xpi.Options{ID: auth.AddonID}
+		opt := xpi.Options{
+			ID: auth.AddonID,
+			PKCS7Digest: "SHA1",
+		}
+		if auth.AddonPKCS7Digest != "" {
+			opt.PKCS7Digest = auth.AddonPKCS7Digest
+		}
+		if len(auth.AddonCOSEAlgorithms) > 0 {
+			opt.COSEAlgorithms = auth.AddonCOSEAlgorithms
+		}
+		request.Options = opt
 	}
 	requests = append(requests, request)
 	reqBody, err := json.Marshal(requests)
