@@ -2,23 +2,32 @@ module go.mozilla.org/autograph-edge
 
 require (
 	cloud.google.com/go v0.23.0
+	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
 	github.com/aws/aws-sdk-go v1.13.59
 	github.com/fatih/color v1.7.0
 	github.com/go-ini/ini v1.38.1 // indirect
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.1.0
+	github.com/gorilla/mux v1.6.2 // indirect
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
+	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47 // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
 	github.com/mattn/go-colorable v0.0.9 // indirect
 	github.com/mattn/go-isatty v0.0.3 // indirect
+	github.com/miekg/pkcs11 v0.0.0-20180425180052-287d9350987c // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
 	github.com/mozilla-services/yaml v0.0.0-20180223174101-3cf514db71fc
 	github.com/pkg/errors v0.8.0
 	github.com/sirupsen/logrus v1.0.5
-	go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719
+	github.com/ugorji/go v1.1.1 // indirect
+	github.com/youtube/vitess v2.1.1+incompatible // indirect
+	go.mozilla.org/autograph v0.0.0-20180720200854-d6a77dd438ca
+	go.mozilla.org/cose v0.0.0-20180718182446-1eaf5a0651d7 // indirect
 	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a
 	go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef
+	go.mozilla.org/mar v0.0.0-20180627123731-b04b40e80348 // indirect
 	go.mozilla.org/mozlog v0.0.0-20170222151521-4bb13139d403
 	go.mozilla.org/mozlogrus v1.0.0
 	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7

@@ -9,7 +9,7 @@ RUN addgroup --gid 10001 app && \
 
 RUN apt update && \
     apt -y upgrade && \
-    apt -y install clang && \
+    apt -y install clang libltdl-dev && \
     apt-get clean
 
 ADD . $GOPATH/src/go.mozilla.org/autograph-edge
@@ -20,7 +20,7 @@ RUN go get -u golang.org/x/vgo && \
     cd $GOPATH/src/go.mozilla.org/autograph-edge && \
     make install
 
-RUN apt-get -y remove clang && \
+RUN apt-get -y remove clang libltdl-dev && \
     apt-get clean && \
     apt-get -y autoremove
 
