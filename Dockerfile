@@ -20,7 +20,7 @@ RUN go get -u golang.org/x/vgo && \
     cd $GOPATH/src/go.mozilla.org/autograph-edge && \
     make install
 
-RUN apt-get -y remove clang libltdl-dev && \
+RUN apt-get -y remove clang && \
     apt-get clean && \
     apt-get -y autoremove
 
