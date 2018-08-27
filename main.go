@@ -60,13 +60,21 @@ func init() {
 }
 
 func main() {
-	var cfgFile string
+	var (
+		cfgFile      string
+		autographURL string
+	)
 	flag.StringVar(&cfgFile, "c", "autograph-edge.yaml", "Path to configuration file")
+	flag.StringVar(&autographURL, "u", "", "Upstream Autograph URL")
 	flag.Parse()
 
 	err := conf.loadFromFile(cfgFile)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if autographURL != "" {
+		log.Infof("using commandline autograph URL %s instead of conf %s", autographURL, conf.URL)
+		conf.URL = autographURL
 	}
 
 	http.HandleFunc("/sign", sigHandler)
@@ -74,7 +82,7 @@ func main() {
 	http.HandleFunc("/__heartbeat__", heartbeatHandler)
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
 
-	log.Info("start server on port 8080")
+	log.Infof("start server on port 8080 with upstream autograph %s", conf.URL)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
