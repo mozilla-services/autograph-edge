@@ -213,6 +213,21 @@ type heartbeat struct {
 	Details string `json:"details"`
 }
 
+func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
+	w.Header().Set("Content-Type", "application/json")
+	if !st.Status {
+		log.Println(st.Details)
+		w.WriteHeader(http.StatusServiceUnavailable)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+	jsonSt, err := json.Marshal(st)
+	if err != nil {
+		log.Fatal("failed to marshal heartbeat status: %v", err)
+	}
+	w.Write(jsonSt)
+}
+
 // send a GET request to the autograph heartbeat endpoint and
 // evaluate its status code before responding
 func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
@@ -233,28 +248,18 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 		st.Checks.CheckAutographHeartbeat = false
 		st.Status = false
 		st.Details = fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
-		goto done
+		writeHeartbeatResponse(w, st)
+		return
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		st.Checks.CheckAutographHeartbeat = false
 		st.Status = false
 		st.Details = fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
-		goto done
+		writeHeartbeatResponse(w, st)
+		return
 	}
-done:
-	w.Header().Set("Content-Type", "application/json")
-	if !st.Status {
-		log.Println(st.Details)
-		w.WriteHeader(http.StatusServiceUnavailable)
-	} else {
-		w.WriteHeader(http.StatusOK)
-	}
-	jsonSt, err := json.Marshal(st)
-	if err != nil {
-		log.Fatal("failed to marshal heartbeat status: %v", err)
-	}
-	w.Write(jsonSt)
+	writeHeartbeatResponse(w, st)
 }
 func makeRequestID() string {
 	rid := make([]rune, 16)
