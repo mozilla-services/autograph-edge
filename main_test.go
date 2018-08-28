@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"os"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -46,5 +50,24 @@ func TestAuth(t *testing.T) {
 		if auth.Signer != testcase.signer {
 			t.Fatalf("testcase %d failed: expected signer %q, got %q", i, testcase.signer, auth.Signer)
 		}
+	}
+}
+
+func TestVersion(t *testing.T) {
+	req := httptest.NewRequest("GET", "http://localhost:8080/__version__", nil)
+	w := httptest.NewRecorder()
+	versionHandler(w, req)
+
+	resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
+	}
+	if !bytes.Equal(body, jsonVersion) {
+		t.Fatalf("failed to return version.json contents got %s and expected %s", body, jsonVersion)
+	}
+	if resp.Header.Get("Content-Type") != "application/json" {
+		t.Fatalf("version returned unexpected content type: %s", resp.Header.Get("Content-Type"))
 	}
 }
