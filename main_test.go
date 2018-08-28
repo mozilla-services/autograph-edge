@@ -8,7 +8,7 @@ import (
 
 func TestMain(m *testing.M) {
 	// load the signers
-	err := conf.loadFromFile(os.Getenv("GOPATH") + "/src/go.mozilla.org/autograph/tools/autograph-edge/autograph-edge.yaml")
+	err := conf.loadFromFile(os.Getenv("GOPATH") + "/src/go.mozilla.org/autograph-edge/autograph-edge.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
