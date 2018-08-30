@@ -1,14 +1,18 @@
 package main
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"os"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 func TestMain(m *testing.M) {
 	// load the signers
-	err := conf.loadFromFile(os.Getenv("GOPATH") + "/src/go.mozilla.org/autograph/tools/autograph-edge/autograph-edge.yaml")
+	err := conf.loadFromFile(os.Getenv("GOPATH") + "/src/go.mozilla.org/autograph-edge/autograph-edge.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,5 +50,99 @@ func TestAuth(t *testing.T) {
 		if auth.Signer != testcase.signer {
 			t.Fatalf("testcase %d failed: expected signer %q, got %q", i, testcase.signer, auth.Signer)
 		}
+	}
+}
+
+func TestHeartbeatBadURL(t *testing.T) {
+	origURL := conf.URL
+	conf.URL = "%gh&%ij"
+
+	req := httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil)
+	w := httptest.NewRecorder()
+
+	heartbeatBadURLBody := []byte("failed to parse conf URL\n")
+
+	heartbeatHandler(w, req)
+
+	resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	conf.URL = origURL
+
+	if resp.StatusCode != http.StatusInternalServerError {
+		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusInternalServerError)
+	}
+	if !bytes.Equal(body, heartbeatBadURLBody) {
+		t.Fatalf("failed to return heartbeat got %#v and expected %#v", string(body), string(heartbeatBadURLBody))
+	}
+	if resp.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
+		t.Fatalf("heartbeat returned unexpected content type: %s", resp.Header.Get("Content-Type"))
+	}
+}
+
+func TestHeartbeatRequestFailure(t *testing.T) {
+	origURL := conf.URL
+	conf.URL = ""
+
+	req := httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil)
+	w := httptest.NewRecorder()
+
+	heartbeatBadURLBody := []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from :///__heartbeat__: parse :///__heartbeat__: missing protocol scheme\"}")
+
+	heartbeatHandler(w, req)
+
+	resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	conf.URL = origURL
+
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusServiceUnavailable)
+	}
+	if !bytes.Equal(body, heartbeatBadURLBody) {
+		t.Fatalf("failed to return heartbeat got %#v and expected %#v", string(body), string(heartbeatBadURLBody))
+	}
+	if resp.Header.Get("Content-Type") != "application/json" {
+		t.Fatalf("heartbeat returned unexpected content type: %s", resp.Header.Get("Content-Type"))
+	}
+}
+
+func TestHeartbeatOK(t *testing.T) {
+	req := httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil)
+	w := httptest.NewRecorder()
+	heartbeatHandler(w, req)
+
+	heartbeatOKBody := []byte("{\"status\":true,\"checks\":{\"check_autograph_heartbeat\":true},\"details\":\"\"}")
+
+	resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
+	}
+	if !bytes.Equal(body, heartbeatOKBody) {
+		t.Fatalf("failed to return heartbeat got %s and expected %s", body, heartbeatOKBody)
+	}
+	if resp.Header.Get("Content-Type") != "application/json" {
+		t.Fatalf("heartbeat returned unexpected content type: %s", resp.Header.Get("Content-Type"))
+	}
+}
+
+func TestVersion(t *testing.T) {
+	req := httptest.NewRequest("GET", "http://localhost:8080/__version__", nil)
+	w := httptest.NewRecorder()
+	versionHandler(w, req)
+
+	resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
+	}
+	if !bytes.Equal(body, jsonVersion) {
+		t.Fatalf("failed to return version.json contents got %s and expected %s", body, jsonVersion)
+	}
+	if resp.Header.Get("Content-Type") != "application/json" {
+		t.Fatalf("version returned unexpected content type: %s", resp.Header.Get("Content-Type"))
 	}
 }
