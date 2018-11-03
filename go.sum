@@ -1,5 +1,7 @@
 cloud.google.com/go v0.23.0 h1:w1svupRqvZnfjN9+KksMiggoIRQuMzWkVzpxcR96xDs=
 cloud.google.com/go v0.23.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
+github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895 h1:dmc/C8bpE5VkQn65PNbbyACDC8xw8Hpp/NEurdPmQDQ=
+github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a h1:xMG7jdtOarj7yeFJFLPTijX7tW2OuiiEH6CflqAx7S8=
 github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a/go.mod h1:DdvQlzHSrdXwhcXCWY6o1HquZycJyAwsXXpKlk1+rww=
 github.com/aws/aws-sdk-go v1.13.59 h1:mLYuaNlYoEfO8kP7qoIY07R0VOvEz5wtO+IiR5c/y3w=
@@ -46,6 +48,8 @@ go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719 h1:8T0rQRBFdcMOHzgv1
 go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719/go.mod h1:ncXQFzz/v/CuLg/l4uqX77HhXGo3zIaECh6MHTRCF3o=
 go.mozilla.org/autograph v0.0.0-20180720200854-d6a77dd438ca h1:ZK7dNOovxOYZuvJAhe/yYFn161WCBijcSMMAQwrqGTE=
 go.mozilla.org/autograph v0.0.0-20180720200854-d6a77dd438ca/go.mod h1:ncXQFzz/v/CuLg/l4uqX77HhXGo3zIaECh6MHTRCF3o=
+go.mozilla.org/autograph v0.0.0-20181011130409-bbb33dd2ff13 h1:+g/H194jV0//UocaVZ2xNR6obAC2rCEWC13UluwmrhY=
+go.mozilla.org/autograph v0.0.0-20181011130409-bbb33dd2ff13/go.mod h1:ncXQFzz/v/CuLg/l4uqX77HhXGo3zIaECh6MHTRCF3o=
 go.mozilla.org/cose v0.0.0-20180718182446-1eaf5a0651d7 h1:48nVX3Z0sRseA3gzfov2MqX3yQBNCofDBxELBJY3nLQ=
 go.mozilla.org/cose v0.0.0-20180718182446-1eaf5a0651d7/go.mod h1:v4kQ18+/r200i6QSkLG8UKX0AL+chEzGK/R0VmPittk=
 go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a h1:N7VD+PwpJME2ZfQT8+ejxwA4Ow10IkGbU0MGf94ll8k=

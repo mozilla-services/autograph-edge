@@ -44,6 +44,7 @@ type authorization struct {
 	AddonID             string
 	AddonPKCS7Digest    string
 	AddonCOSEAlgorithms []string
+	ApkZip              string
 }
 
 var jsonVersion []byte
