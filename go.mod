@@ -2,6 +2,7 @@ module go.mozilla.org/autograph-edge
 
 require (
 	cloud.google.com/go v0.23.0
+	github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895 // indirect
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
 	github.com/aws/aws-sdk-go v1.13.59
 	github.com/fatih/color v1.7.0
@@ -23,7 +24,7 @@ require (
 	github.com/sirupsen/logrus v1.0.5
 	github.com/ugorji/go v1.1.1 // indirect
 	github.com/youtube/vitess v2.1.1+incompatible // indirect
-	go.mozilla.org/autograph v0.0.0-20180720200854-d6a77dd438ca
+	go.mozilla.org/autograph v0.0.0-20181011130409-bbb33dd2ff13
 	go.mozilla.org/cose v0.0.0-20180718182446-1eaf5a0651d7 // indirect
 	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a
 	go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef
