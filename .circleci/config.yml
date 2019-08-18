@@ -8,7 +8,7 @@ version: 2
 jobs:
   test:
     docker:
-        - image: golang:1.10
+        - image: golang:1.12
     working_directory: /root/go/src/go.mozilla.org/autograph-edge
     environment:
         GOPATH: "/root/go"
