@@ -6,6 +6,8 @@ github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a h1:xMG7jdtOa
 github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a/go.mod h1:DdvQlzHSrdXwhcXCWY6o1HquZycJyAwsXXpKlk1+rww=
 github.com/aws/aws-sdk-go v1.13.59 h1:mLYuaNlYoEfO8kP7qoIY07R0VOvEz5wtO+IiR5c/y3w=
 github.com/aws/aws-sdk-go v1.13.59/go.mod h1:ZRmQr0FajVIyZ4ZzBYKG5P3ZqPz9IHG41ZoMu1ADI3k=
+github.com/aws/aws-sdk-go v1.25.9 h1:WtVzerf5wSgPwlTTwl+ktCq/0GCS5MI9ZlLIcjsTr+Q=
+github.com/aws/aws-sdk-go v1.25.9/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/go-ini/ini v1.38.1 h1:hbtfM8emWUVo9GnXSloXYyFbXxZ+tG6sbepSStoe1FY=
