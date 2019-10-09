@@ -8,7 +8,7 @@ version: 2
 jobs:
   test:
     docker:
-        - image: golang:1.10
+        - image: circleci/golang:1.13-buster
     steps:
       - checkout
       - setup_remote_docker
