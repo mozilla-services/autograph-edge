@@ -9,9 +9,6 @@ jobs:
   test:
     docker:
         - image: golang:1.10
-    working_directory: /root/go/src/go.mozilla.org/autograph-edge
-    environment:
-        GOPATH: "/root/go"
     steps:
       - checkout
       - setup_remote_docker
