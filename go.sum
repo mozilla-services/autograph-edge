@@ -42,7 +42,7 @@ github.com/sirupsen/logrus v1.0.5 h1:8c8b5uO0zS4X6RPl/sd1ENwSkIc0/H2PaHxE3udaE8I
 github.com/sirupsen/logrus v1.0.5/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
 github.com/ugorji/go v1.1.1 h1:gmervu+jDMvXTbcHQ0pd2wee85nEoE0BsVyEuzkfK8w=
 github.com/ugorji/go v1.1.1/go.mod h1:hnLbHMwcvSihnDhEfx2/BzKp2xb0Y+ErdfYcrs9tkJQ=
-github.com/youtube/vitess v2.1.1+incompatible h1:iqObhq5grB5AR11E6ANuYyUHjI4ggQ/AlkUyontLQGw=
+github.com/youtube/vitess v2.1.1+incompatible h1:SE+P7DNX/jw5RHFs5CHRhZQjq402EJFCD33JhzQMdDw=
 github.com/youtube/vitess v2.1.1+incompatible/go.mod h1:hpMim5/30F1r+0P8GGtB29d0gWHr0IZ5unS+CG0zMx8=
 go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719 h1:8T0rQRBFdcMOHzgv1GGMdjE80ma5FyG81HtzjFFV++U=
 go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719/go.mod h1:ncXQFzz/v/CuLg/l4uqX77HhXGo3zIaECh6MHTRCF3o=
