@@ -9,71 +9,33 @@ jobs:
   test:
     docker:
         - image: circleci/golang:1.13-buster
+    environment:
+      # docker-compose will default to the project directory which
+      # defaults to 'project' on CCI and conflicts with other CCI
+      # builds for network and container names
+      COMPOSE_PROJECT_NAME: autograph_edge
     steps:
       - checkout
       - setup_remote_docker
 
       - run:
-          name: Install Packages
-          command: |
-              sudo apt update
-              sudo apt install -y libltdl-dev clang
-
-      - run:
           name: Install Autograph
-          command: go get go.mozilla.org/autograph
+          command: |
+              docker pull mozilla/autograph
 
       - run:
-          name: Run Autograph
+          name: Build Autograph Edge Images
           command: |
-              go get go.mozilla.org/autograph
-              $GOPATH/bin/autograph -c $GOPATH/src/go.mozilla.org/autograph/autograph.yaml
-          background: true
+              docker-compose build
 
       - run:
-          name: Run Autograph Edge
+          name: Sign test APKs and XPIs and verify the APK
           command: |
-              go get -u golang.org/x/vgo
-              $GOPATH/bin/vgo install go.mozilla.org/autograph-edge
-              $GOPATH/bin/autograph-edge -c autograph-edge.yaml
-          background: true
+              docker-compose run test
 
       - run:
-          name: Sign an APK
+          name: stop and clean up docker-compose containers and images
           command: |
-              while ! nc -z localhost 8080; do
-                echo -n "."
-                sleep 1 # wait for a sec before checking again
-              done
-              curl -F "input=@test.apk" -o /tmp/signed.apk \
-                -H "Authorization: dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd" \
-                http://localhost:8080/sign
-
-      - save_cache:
-          key: apk-v1-{{ .Branch }}-{{epoch}}
-          paths:
-            - /tmp/signed.apk
-
-      - run:
-          name: Sign XPIs
-          command: |
-              while ! nc -z localhost 8080; do
-                echo -n "."
-                sleep 1 # wait for a sec before checking again
-              done
-              curl -F "input=@test.xpi" -o /tmp/signed-default.xpi \
-                -H "Authorization: c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547" \
-                http://localhost:8080/sign
-              curl -F "input=@test.xpi" -o /tmp/signed-PKCS7-SHA256-COSE-ES256.xpi \
-                -H "Authorization: b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880" \
-                http://localhost:8080/sign
-
-      - save_cache:
-          key: xpi-v1-{{ .Branch }}-{{epoch}}
-          paths:
-            - /tmp/signed-default.xpi
-            - /tmp/signed-PKCS7-SHA256-COSE-ES256.xpi
-
   verify:
     docker:
       - image: circleci/android:api-25-node8-alpha
@@ -86,6 +48,7 @@ jobs:
               sudo apt update
               sudo apt install -y android-sdk-build-tools
               /opt/android/sdk/build-tools/27.0.3/apksigner verify --verbose /tmp/signed.apk
+              docker-compose stop && docker-compose rm -f
 
   build:
     docker:
