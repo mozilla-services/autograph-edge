@@ -1,5 +1,4 @@
-FROM golang:1.10
-MAINTAINER Mozilla
+FROM golang:1.13.1-buster
 EXPOSE 8080
 
 RUN addgroup --gid 10001 app && \
