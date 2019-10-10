@@ -1,0 +1,26 @@
+version: "3"
+services:
+  app:
+    image: mozilla/autograph
+    ports:
+      - "8000:8000"
+  edge:
+    build:
+      context: .
+    environment:
+      - GOPATH=/go
+    links:
+      - app
+    ports:
+      - "8080:8080"
+    command:
+      [
+        "/go/bin/autograph-edge",
+        "-u",
+        "http://app:8000/sign/file",
+      ]
+  test:
+    build:
+      context: ./integration_test
+    links:
+      - edge

@@ -224,7 +224,7 @@ func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
 	}
 	jsonSt, err := json.Marshal(st)
 	if err != nil {
-		log.Fatal("failed to marshal heartbeat status: %v", err)
+		log.Fatalf("failed to marshal heartbeat status: %v", err)
 	}
 	w.Write(jsonSt)
 }

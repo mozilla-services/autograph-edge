@@ -28,7 +28,7 @@ require (
 	go.mozilla.org/cose v0.0.0-20180718182446-1eaf5a0651d7 // indirect
 	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a
 	go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef
-	go.mozilla.org/mar v0.0.0-20180627123731-b04b40e80348 // indirect
+	go.mozilla.org/mar v0.0.0-20181114132738-e3bc898d8f19 // indirect
 	go.mozilla.org/mozlog v0.0.0-20170222151521-4bb13139d403
 	go.mozilla.org/mozlogrus v1.0.0
 	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7
@@ -43,3 +43,5 @@ require (
 	google.golang.org/grpc v1.12.0
 	gopkg.in/yaml.v2 v2.2.1
 )
+
+go 1.13

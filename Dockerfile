@@ -1,5 +1,4 @@
-FROM golang:1.10
-MAINTAINER Mozilla
+FROM golang:1.13.1-buster
 EXPOSE 8080
 
 RUN addgroup --gid 10001 app && \
@@ -16,8 +15,8 @@ ADD . $GOPATH/src/go.mozilla.org/autograph-edge
 ADD autograph-edge.yaml /app
 ADD version.json /app
 
-RUN go get -u golang.org/x/vgo && \
-    cd $GOPATH/src/go.mozilla.org/autograph-edge && \
+ENV GO111MODULE on
+RUN cd $GOPATH/src/go.mozilla.org/autograph-edge && \
     make install
 
 RUN apt-get -y remove clang && \

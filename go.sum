@@ -42,7 +42,7 @@ github.com/sirupsen/logrus v1.0.5 h1:8c8b5uO0zS4X6RPl/sd1ENwSkIc0/H2PaHxE3udaE8I
 github.com/sirupsen/logrus v1.0.5/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
 github.com/ugorji/go v1.1.1 h1:gmervu+jDMvXTbcHQ0pd2wee85nEoE0BsVyEuzkfK8w=
 github.com/ugorji/go v1.1.1/go.mod h1:hnLbHMwcvSihnDhEfx2/BzKp2xb0Y+ErdfYcrs9tkJQ=
-github.com/youtube/vitess v2.1.1+incompatible h1:iqObhq5grB5AR11E6ANuYyUHjI4ggQ/AlkUyontLQGw=
+github.com/youtube/vitess v2.1.1+incompatible h1:SE+P7DNX/jw5RHFs5CHRhZQjq402EJFCD33JhzQMdDw=
 github.com/youtube/vitess v2.1.1+incompatible/go.mod h1:hpMim5/30F1r+0P8GGtB29d0gWHr0IZ5unS+CG0zMx8=
 go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719 h1:8T0rQRBFdcMOHzgv1GGMdjE80ma5FyG81HtzjFFV++U=
 go.mozilla.org/autograph v0.0.0-20180530150302-319dbedaa719/go.mod h1:ncXQFzz/v/CuLg/l4uqX77HhXGo3zIaECh6MHTRCF3o=
@@ -58,6 +58,8 @@ go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef h1:JV5qfNZf3mHRvAErsKam3T
 go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef/go.mod h1:ios+sJANmPARsTCF4LHZNaCVQna3TvwS+ECs/Y2GONU=
 go.mozilla.org/mar v0.0.0-20180627123731-b04b40e80348 h1:F8TjHiau9FG5xDWo6ndBfWt5UM5AuRJ4qUciHpSVjoI=
 go.mozilla.org/mar v0.0.0-20180627123731-b04b40e80348/go.mod h1:BIzqT/Wm/HHBX0meahRdBRhJFXMa9F+G+AJluKduJJs=
+go.mozilla.org/mar v0.0.0-20181114132738-e3bc898d8f19 h1:tprcOcdzob+lIhN/vL7oV3uHdImoF0YoRSqJhPc6SRY=
+go.mozilla.org/mar v0.0.0-20181114132738-e3bc898d8f19/go.mod h1:BIzqT/Wm/HHBX0meahRdBRhJFXMa9F+G+AJluKduJJs=
 go.mozilla.org/mozlog v0.0.0-20170222151521-4bb13139d403 h1:rKyWXYDfrVOpMFBion4Pmx5sJbQreQNXycHvm4KwJSg=
 go.mozilla.org/mozlog v0.0.0-20170222151521-4bb13139d403/go.mod h1:jHoPAGnDrCy6kaI2tAze5Prf0Nr0w/oNkROt2lw3n3o=
 go.mozilla.org/mozlogrus v1.0.0 h1:8FWASFDozt1q1B+j6EoSBt62YN4k7nMWFLb3VyawXzA=
