@@ -21,7 +21,7 @@ require (
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
 	github.com/mozilla-services/yaml v0.0.0-20180223174101-3cf514db71fc
 	github.com/pkg/errors v0.8.1
-	github.com/sirupsen/logrus v1.0.5
+	github.com/sirupsen/logrus v1.4.2
 	github.com/ugorji/go v1.1.1 // indirect
 	github.com/youtube/vitess v2.1.1+incompatible // indirect
 	go.mozilla.org/autograph v0.0.0-20181011130409-bbb33dd2ff13
