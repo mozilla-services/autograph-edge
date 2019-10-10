@@ -36,18 +36,6 @@ jobs:
       - run:
           name: stop and clean up docker-compose containers and images
           command: |
-  verify:
-    docker:
-      - image: circleci/android:api-25-node8-alpha
-    steps:
-      - restore_cache:
-          key: apk-v1-{{ .Branch }}
-      - run:
-          name: Verify APK signature
-          command: |
-              sudo apt update
-              sudo apt install -y android-sdk-build-tools
-              /opt/android/sdk/build-tools/27.0.3/apksigner verify --verbose /tmp/signed.apk
               docker-compose stop && docker-compose rm -f
 
   build:
@@ -125,17 +113,9 @@ workflows:
             tags:
               only: /.*/
 
-      - verify:
-          requires:
-            - test
-          filters:
-            tags:
-              only: /.*/
-
       - build:
           requires:
             - test
-            - verify
           filters:
             tags:
               only: /.*/
@@ -143,7 +123,6 @@ workflows:
       - deploy:
           requires:
             - test
-            - verify
             - build
           filters:
             tags:
