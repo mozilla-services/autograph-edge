@@ -22,6 +22,8 @@ github.com/aws/aws-sdk-go v1.13.59 h1:mLYuaNlYoEfO8kP7qoIY07R0VOvEz5wtO+IiR5c/y3
 github.com/aws/aws-sdk-go v1.13.59/go.mod h1:ZRmQr0FajVIyZ4ZzBYKG5P3ZqPz9IHG41ZoMu1ADI3k=
 github.com/aws/aws-sdk-go v1.25.10 h1:3epJfNmP6xWkOpLOdhIIj07+9UAJwvbzq8bBzyPigI4=
 github.com/aws/aws-sdk-go v1.25.10/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.25.25 h1:j3HLOqcDWjNox1DyvJRs+kVQF42Ghtv6oL6cVBfXS3U=
+github.com/aws/aws-sdk-go v1.25.25/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
