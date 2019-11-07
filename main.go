@@ -97,6 +97,7 @@ func main() {
 	http.HandleFunc("/__version__", versionHandler)
 	http.HandleFunc("/__heartbeat__", heartbeatHandler(conf.BaseURL, &heartbeatClient{&http.Client{}}))
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
+	http.HandleFunc("/", notFoundHandler)
 
 	log.Infof("start server on port 8080 with upstream autograph base URL %s", conf.BaseURL)
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -231,6 +232,11 @@ func httpError(w http.ResponseWriter, r *http.Request, errorCode int, errorMessa
 	}
 	addWebSecurityHeaders(w)
 	http.Error(w, msg, errorCode)
+	return
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	httpError(w, r, http.StatusNotFound, "404 page not found")
 	return
 }
 
