@@ -104,26 +104,26 @@ func sigHandler(w http.ResponseWriter, r *http.Request) {
 	// some sanity checking on the request
 	if r.Method != http.MethodPost {
 		log.WithFields(log.Fields{"rid": rid}).Error("invalid method")
-		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		httpError(w, r, http.StatusMethodNotAllowed, "invalid method")
 		return
 	}
 	if len(r.Header.Get("Authorization")) < 60 {
 		log.WithFields(log.Fields{"rid": rid}).Error("missing authorization header")
-		http.Error(w, "missing authorization header", http.StatusUnauthorized)
+		httpError(w, r, http.StatusUnauthorized, "missing authorization header")
 		return
 	}
 	// verify auth token
 	auth, err := authorize(r.Header.Get("Authorization"))
 	if err != nil {
 		log.WithFields(log.Fields{"rid": rid}).Error(err)
-		http.Error(w, "not authorized", http.StatusUnauthorized)
+		httpError(w, r, http.StatusUnauthorized, "not authorized")
 		return
 	}
 
 	fd, fdHeader, err := r.FormFile("input")
 	if err != nil {
 		log.WithFields(log.Fields{"rid": rid}).Error(err)
-		http.Error(w, "failed to read form data", http.StatusBadRequest)
+		httpError(w, r, http.StatusBadRequest, "failed to read form data")
 		return
 	}
 	defer fd.Close()
@@ -132,7 +132,7 @@ func sigHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = io.ReadFull(fd, input)
 	if err != nil {
 		log.WithFields(log.Fields{"rid": rid}).Error(err)
-		http.Error(w, "failed to read input", http.StatusBadRequest)
+		httpError(w, r, http.StatusBadRequest, "failed to read input")
 		return
 	}
 	inputSha256 := fmt.Sprintf("%x", sha256.Sum256(input))
@@ -148,7 +148,7 @@ func sigHandler(w http.ResponseWriter, r *http.Request) {
 	output, err := callAutograph(auth, input, xff)
 	if err != nil {
 		log.WithFields(log.Fields{"rid": rid, "input_sha256": inputSha256}).Error(err)
-		http.Error(w, "failed to call autograph for signature", http.StatusBadGateway)
+		httpError(w, r, http.StatusBadGateway, "failed to call autograph for signature")
 		return
 	}
 	outputSha256 := fmt.Sprintf("%x", sha256.Sum256(output))
@@ -200,6 +200,23 @@ func authorize(authHeader string) (auth authorization, err error) {
 	return authorization{}, errInvalidToken
 }
 
+func httpError(w http.ResponseWriter, r *http.Request, errorCode int, errorMessage string, args ...interface{}) {
+	log.WithFields(log.Fields{
+		"code": errorCode,
+	}).Errorf(errorMessage, args...)
+	msg := fmt.Sprintf(errorMessage, args...)
+
+	// when nginx is in front of go, nginx requires that the entire
+	// request body is read before writing a response.
+	// https://github.com/golang/go/issues/15789
+	if r.Body != nil {
+		io.Copy(ioutil.Discard, r.Body)
+		r.Body.Close()
+	}
+	http.Error(w, msg, errorCode)
+	return
+}
+
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -240,7 +257,7 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 	u, err := url.Parse(conf.URL)
 	if err != nil {
 		log.Printf("failed to parse conf url %q: %v", conf.URL, err)
-		http.Error(w, "failed to parse conf URL", http.StatusInternalServerError)
+		httpError(w, r, http.StatusInternalServerError, "failed to parse conf URL")
 		return
 	}
 	heartbeatURL := fmt.Sprintf("%s://%s/__heartbeat__", u.Scheme, u.Host)
