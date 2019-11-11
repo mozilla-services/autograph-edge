@@ -40,7 +40,7 @@ require (
 	golang.org/x/text v0.3.2
 	google.golang.org/api v0.13.0
 	google.golang.org/genproto v0.0.0-20180531194445-4065a77fc542
-	google.golang.org/grpc v1.24.0
+	google.golang.org/grpc v1.25.1
 	gopkg.in/yaml.v2 v2.2.4
 )
 
