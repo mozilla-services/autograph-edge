@@ -7,15 +7,13 @@ services:
   edge:
     build:
       context: .
-    environment:
-      - GOPATH=/go
     links:
       - app
     ports:
       - "8080:8080"
     command:
       [
-        "/go/bin/autograph-edge",
+        "/usr/local/bin/autograph-edge",
         "-u",
         "http://app:8000/sign/file",
       ]
