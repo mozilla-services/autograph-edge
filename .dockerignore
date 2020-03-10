@@ -1,1 +1,5 @@
 integration_test/
+.git/
+coverage.out
+docker-compose.yml
+Dockerfile
