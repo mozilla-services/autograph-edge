@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.9.0
 	github.com/go-ini/ini v1.38.1 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
-	github.com/golang/protobuf v1.3.4
+	github.com/golang/protobuf v1.3.5
 	github.com/gorilla/mux v1.6.2 // indirect
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
 	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47 // indirect
