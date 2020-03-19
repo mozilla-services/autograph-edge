@@ -20,7 +20,7 @@ EXPOSE 8080
 
 RUN apt update && \
     apt -y upgrade && \
-    apt -y install libltdl-dev && \
+    apt -y install libltdl-dev ca-certificates && \
     apt-get clean
 
 COPY --from=build /go/bin/autograph-edge /usr/local/bin
