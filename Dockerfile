@@ -1,4 +1,4 @@
-FROM golang:1.14.0-buster AS build
+FROM golang:1.14.1-buster AS build
 ENV GO111MODULE on
 
 RUN apt update && \
