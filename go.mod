@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.30.29
 	github.com/fatih/color v1.9.0
 	github.com/go-ini/ini v1.38.1 // indirect
-	github.com/golang/protobuf v1.4.1
+	github.com/golang/protobuf v1.4.2
 	github.com/gorilla/mux v1.6.2 // indirect
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
