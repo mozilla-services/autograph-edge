@@ -4,7 +4,7 @@ require (
 	cloud.google.com/go v0.60.0
 	github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895 // indirect
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
-	github.com/aws/aws-sdk-go v1.33.1
+	github.com/aws/aws-sdk-go v1.33.5
 	github.com/fatih/color v1.9.0
 	github.com/go-ini/ini v1.38.1 // indirect
 	github.com/golang/protobuf v1.4.2
