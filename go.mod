@@ -31,10 +31,10 @@ require (
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200803210538-64077c9b5642
+	golang.org/x/sys v0.0.0-20200828194041-157a740278f4
 	golang.org/x/text v0.3.3
-	google.golang.org/api v0.30.0
-	google.golang.org/genproto v0.0.0-20200825200019-8632dd797987
+	google.golang.org/api v0.31.0
+	google.golang.org/genproto v0.0.0-20200831141814-d751682dd103
 	google.golang.org/grpc v1.31.1
 	gopkg.in/yaml.v2 v2.3.0
 )
