@@ -12,5 +12,3 @@ lint:
 	golint *.go
 vet:
 	$(GO) vet *.go
-vendor:
-	$(GO) build
