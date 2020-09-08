@@ -16,7 +16,8 @@ jobs:
       COMPOSE_PROJECT_NAME: autograph_edge
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 18.09.3
 
       - run:
           name: Install Autograph
@@ -50,7 +51,8 @@ jobs:
               apk add git openssh
 
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 18.09.3
 
       - run:
           name: Create a version.json
