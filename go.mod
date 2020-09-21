@@ -30,11 +30,11 @@ require (
 	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200828194041-157a740278f4
+	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
+	golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f
 	golang.org/x/text v0.3.3
-	google.golang.org/api v0.31.0
-	google.golang.org/genproto v0.0.0-20200831141814-d751682dd103
+	google.golang.org/api v0.32.0
+	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
 	google.golang.org/grpc v1.32.0
 	gopkg.in/yaml.v2 v2.3.0
 )
