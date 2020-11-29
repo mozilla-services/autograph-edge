@@ -4,7 +4,7 @@ require (
 	cloud.google.com/go v0.72.0
 	github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895 // indirect
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
-	github.com/aws/aws-sdk-go v1.35.28
+	github.com/aws/aws-sdk-go v1.35.35
 	github.com/fatih/color v1.10.0
 	github.com/go-ini/ini v1.38.1 // indirect
 	github.com/golang/protobuf v1.4.3
@@ -29,7 +29,7 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7
 	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
 	golang.org/x/text v0.3.4
