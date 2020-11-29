@@ -36,7 +36,7 @@ require (
 	google.golang.org/api v0.35.0
 	google.golang.org/genproto v0.0.0-20201109203340-2640f1f9cdfb
 	google.golang.org/grpc v1.33.2
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 go 1.13
