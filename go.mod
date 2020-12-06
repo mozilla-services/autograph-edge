@@ -35,7 +35,7 @@ require (
 	golang.org/x/text v0.3.4
 	google.golang.org/api v0.35.0
 	google.golang.org/genproto v0.0.0-20201109203340-2640f1f9cdfb
-	google.golang.org/grpc v1.33.2
+	google.golang.org/grpc v1.34.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
