@@ -1,7 +1,7 @@
 module go.mozilla.org/autograph-edge
 
 require (
-	cloud.google.com/go v0.74.0
+	cloud.google.com/go v0.75.0
 	github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895 // indirect
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
 	github.com/aws/aws-sdk-go v1.36.28
@@ -29,12 +29,12 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7
 	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/sys v0.0.0-20201201145000-ef89a241ccb3
 	golang.org/x/text v0.3.5
 	google.golang.org/api v0.36.0
-	google.golang.org/genproto v0.0.0-20201210142538-e3217bee35cc
+	google.golang.org/genproto v0.0.0-20210108203827-ffc7fda8c3d7
 	google.golang.org/grpc v1.34.0
 	gopkg.in/yaml.v2 v2.4.0
 )
