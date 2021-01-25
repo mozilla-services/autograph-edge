@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"go.mozilla.org/autograph/signer/apk"
 	"go.mozilla.org/autograph/signer/xpi"
 	"go.mozilla.org/hawk"
 )
@@ -47,12 +46,6 @@ func callAutograph(auth authorization, body []byte, xff string) (signedBody []by
 		}
 		if len(auth.AddonCOSEAlgorithms) > 0 {
 			opt.COSEAlgorithms = auth.AddonCOSEAlgorithms
-		}
-		request.Options = opt
-	}
-	if auth.ApkZip != "" {
-		opt := apk.Options{
-			ZIP: auth.ApkZip,
 		}
 		request.Options = opt
 	}
