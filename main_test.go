@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io/ioutil"
 	"log"
-	"os"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
