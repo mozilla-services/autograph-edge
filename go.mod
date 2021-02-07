@@ -33,7 +33,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/sys v0.0.0-20210104204734-6f8348627aad
 	golang.org/x/text v0.3.5
-	google.golang.org/api v0.38.0
+	google.golang.org/api v0.39.0
 	google.golang.org/genproto v0.0.0-20210108203827-ffc7fda8c3d7
 	google.golang.org/grpc v1.35.0
 	gopkg.in/yaml.v2 v2.4.0
