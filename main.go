@@ -12,7 +12,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/mozilla-services/yaml"
+	"gopkg.in/yaml.v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"go.mozilla.org/mozlogrus"
