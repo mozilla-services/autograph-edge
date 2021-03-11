@@ -26,4 +26,3 @@ authorizations:
       user: alice
       key: fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu
       signer: testapp-android
-      apkzip: passthrough
