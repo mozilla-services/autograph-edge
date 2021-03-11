@@ -3,14 +3,11 @@ module go.mozilla.org/autograph-edge
 require (
 	cloud.google.com/go v0.78.0 // indirect
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
-	github.com/aws/aws-sdk-go v1.37.25
-	github.com/fatih/color v1.10.0
-	github.com/go-ini/ini v1.38.1 // indirect
-	github.com/golang/protobuf v1.4.3
-	github.com/gorilla/mux v1.6.2 // indirect
-	github.com/goware/prefixer v0.0.0-20160118172347-395022866408
-	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c
-	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84
+	github.com/aws/aws-sdk-go v1.37.25 // indirect
+	github.com/fatih/color v1.10.0 // indirect
+	github.com/goware/prefixer v0.0.0-20160118172347-395022866408 // indirect
+	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c // indirect
+	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84 // indirect
 	github.com/miekg/pkcs11 v0.0.0-20180425180052-287d9350987c // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/mozilla-services/yaml v0.0.0-20201007153854-c369669a6625 // indirect
