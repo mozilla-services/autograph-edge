@@ -168,13 +168,13 @@ func Test_findDuplicateClientToken(t *testing.T) {
 			args: args{
 				auths: []authorization{
 					authorization{
-						Token: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
 					},
 					authorization{
-						Token: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
+						ClientToken: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
 					},
 					authorization{
-						Token: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
+						ClientToken: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
 					},
 				},
 			},
@@ -185,12 +185,12 @@ func Test_findDuplicateClientToken(t *testing.T) {
 			args: args{
 				auths: []authorization{
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "spam",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "spam",
 					},
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "eggs",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "eggs",
 					},
 				},
 			},
@@ -201,18 +201,18 @@ func Test_findDuplicateClientToken(t *testing.T) {
 			args: args{
 				auths: []authorization{
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "spam",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "spam",
 					},
 					authorization{
-						Token: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
+						ClientToken: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
 					},
 					authorization{
-						Token: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
+						ClientToken: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
 					},
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "eggs",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "eggs",
 					},
 				},
 			},

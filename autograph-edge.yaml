@@ -4,13 +4,13 @@ authorizations:
     # the following token is allowed to sign a web extension with a pre-defined
     # add-on ID. This is enforced by autograph-edge so the caller cannot sign a
     # different add-on.
-    - token: c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547
+    - client_token: c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547
       addonid: myaddon@allizom.org
       user: alice
       key: fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu
       signer: extensions-ecdsa
 
-    - token: b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880
+    - client_token: b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880
       addonid: mycoseaddon@allizom.org
       addonpkcs7digest: SHA256
       addoncosealgorithms:
@@ -22,7 +22,7 @@ authorizations:
     # the following token is allowed to sign an android APK using a specific
     # signer, which maps to a specific private key. since android uses key pinning,
     # this signer cannot sign a different android application
-    - token: dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd
+    - client_token: dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd
       user: alice
       key: fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu
       signer: testapp-android

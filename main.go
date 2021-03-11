@@ -37,7 +37,7 @@ type configuration struct {
 }
 
 type authorization struct {
-	Token               string
+	ClientToken         string `yaml:"client_token"`
 	Signer              string
 	User                string
 	Key                 string
@@ -197,7 +197,7 @@ func (c *configuration) loadFromFile(path string) error {
 
 func authorize(authHeader string) (auth authorization, err error) {
 	for _, auth := range conf.Authorizations {
-		if authHeader == auth.Token {
+		if authHeader == auth.ClientToken {
 			return auth, nil
 		}
 	}
@@ -299,11 +299,11 @@ func findDuplicateClientToken(auths []authorization) error {
 	seenTokenIndexes := map[string]int{}
 
 	for i, auth := range auths {
-		seenTokenIndex, exists := seenTokenIndexes[auth.Token]
+		seenTokenIndex, exists := seenTokenIndexes[auth.ClientToken]
 		if exists {
 			return fmt.Errorf("found duplicate client token at positions %d and %d", seenTokenIndex, i)
 		}
-		seenTokenIndexes[auth.Token] = i
+		seenTokenIndexes[auth.ClientToken] = i
 	}
 	return nil
 }
