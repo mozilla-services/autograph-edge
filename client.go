@@ -55,7 +55,7 @@ func callAutograph(auth authorization, body []byte, xff string) (signedBody []by
 		return
 	}
 	rdr := bytes.NewReader(reqBody)
-	req, err := http.NewRequest(http.MethodPost, conf.URL, rdr)
+	req, err := http.NewRequest(http.MethodPost, conf.BaseURL+"sign/file", rdr)
 	if err != nil {
 		return
 	}

@@ -1,4 +1,4 @@
-url: http://localhost:8000/sign/file
+autograph_base_url: http://localhost:8000/
 
 authorizations:
     # the following token is allowed to sign a web extension with a pre-defined

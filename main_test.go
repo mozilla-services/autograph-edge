@@ -113,7 +113,7 @@ func Test_heartbeatHandler(t *testing.T) {
 			args: args{
 				r: httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
 			},
-			autographURL: conf.URL,
+			autographURL: conf.BaseURL,
 			expectedResponse: expectedResponse{
 				status:      http.StatusOK,
 				contentType: "application/json",
@@ -147,9 +147,9 @@ func Test_heartbeatHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			origURL := conf.URL
+			origURL := conf.BaseURL
 
-			conf.URL = tt.autographURL
+			conf.BaseURL = tt.autographURL
 			w := httptest.NewRecorder()
 
 			heartbeatHandler(w, tt.args.r)
@@ -157,7 +157,7 @@ func Test_heartbeatHandler(t *testing.T) {
 			resp := w.Result()
 			body, _ := ioutil.ReadAll(resp.Body)
 
-			conf.URL = origURL
+			conf.BaseURL = origURL
 
 			if resp.StatusCode != tt.expectedResponse.status {
 				t.Fatalf("heartbeatHandler() returned unexpected status %v expected %v", resp.StatusCode, tt.expectedResponse.status)
