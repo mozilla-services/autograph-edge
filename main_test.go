@@ -146,3 +146,84 @@ func TestVersion(t *testing.T) {
 		t.Fatalf("version returned unexpected content type: %s", resp.Header.Get("Content-Type"))
 	}
 }
+
+func Test_findDuplicateClientToken(t *testing.T) {
+	type args struct {
+		auths []authorization
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "empty list auths",
+			args: args{
+				auths: []authorization{},
+			},
+			wantErr: false,
+		},
+		{
+			name: "dev config tokens (unique)",
+			args: args{
+				auths: []authorization{
+					authorization{
+						Token: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					},
+					authorization{
+						Token: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
+					},
+					authorization{
+						Token: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "duplicate token",
+			args: args{
+				auths: []authorization{
+					authorization{
+						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer: "spam",
+					},
+					authorization{
+						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer: "eggs",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "duplicate token with other auths interleaved",
+			args: args{
+				auths: []authorization{
+					authorization{
+						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer: "spam",
+					},
+					authorization{
+						Token: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
+					},
+					authorization{
+						Token: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
+					},
+					authorization{
+						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer: "eggs",
+					},
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := findDuplicateClientToken(tt.args.auths); (err != nil) != tt.wantErr {
+				t.Errorf("findDuplicateClientToken() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

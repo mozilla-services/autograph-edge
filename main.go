@@ -12,12 +12,12 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/yaml.v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"go.mozilla.org/mozlogrus"
 	"go.mozilla.org/sops"
 	"go.mozilla.org/sops/decrypt"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -72,6 +72,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = findDuplicateClientToken(conf.Authorizations)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if autographURL != "" {
 		log.Infof("using commandline autograph URL %s instead of conf %s", autographURL, conf.URL)
 		conf.URL = autographURL
@@ -285,4 +290,20 @@ func makeRequestID() string {
 		rid[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(rid)
+}
+
+// findDuplicateClientToken returns an error if it finds a duplicate
+// token in a slice of authorizations
+func findDuplicateClientToken(auths []authorization) error {
+	// a map of token to index in the auths slice
+	seenTokenIndexes := map[string]int{}
+
+	for i, auth := range auths {
+		seenTokenIndex, exists := seenTokenIndexes[auth.Token]
+		if exists {
+			return fmt.Errorf("found duplicate client token at positions %d and %d", seenTokenIndex, i)
+		}
+		seenTokenIndexes[auth.Token] = i
+	}
+	return nil
 }
