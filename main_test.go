@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -22,34 +23,72 @@ func TestMain(m *testing.M) {
 	os.Exit(r)
 }
 
-func TestAuth(t *testing.T) {
-	var testcases = []struct {
-		expect bool
-		token  string
-		user   string
-		signer string
-	}{
-		{true, "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547", "alice", "extensions-ecdsa"},
-		{true, "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd", "alice", "testapp-android"},
-		{false, "c4180d2963fffdcd1cd5a1a343225288b964d8934", "", ""},
-		{false, "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67c98712jh", "", ""},
+func Test_authorize(t *testing.T) {
+	type args struct {
+		authHeader string
 	}
-	for i, testcase := range testcases {
-		auth, err := authorize(testcase.token)
-		if err != nil {
-			if err == errInvalidToken && !testcase.expect {
-				continue
+	tests := []struct {
+		name         string
+		args         args
+		expectedAuth authorization
+		expectedErr  error
+	}{
+		{
+			name: "expect extension-ecdsa auth",
+			args: args{authHeader: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547"},
+			expectedAuth: authorization{
+				User:   "alice",
+				Signer: "extensions-ecdsa",
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "expect testapp-android auth",
+			args: args{authHeader: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd"},
+			expectedAuth: authorization{
+				User:   "alice",
+				Signer: "testapp-android",
+			},
+			expectedErr: nil,
+		},
+		{
+			name:         "empty auth header",
+			args:         args{authHeader: "c4180d2963fffdcd1cd5a1a343225288b964d8934"},
+			expectedAuth: authorization{},
+			expectedErr:  errInvalidToken,
+		},
+		{
+			name:         "short auth header",
+			args:         args{authHeader: "c4180d2963fffdcd1cd5a1a343225288b964d8934"},
+			expectedAuth: authorization{},
+			expectedErr:  errInvalidToken,
+		},
+		{
+			name:         "invalid auth header",
+			args:         args{authHeader: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67c98712jh"},
+			expectedAuth: authorization{},
+			expectedErr:  errInvalidToken,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAuth, err := authorize(tt.args.authHeader)
+			if err != tt.expectedErr {
+				t.Errorf("authorize() error = %v, expectedErr %v", err, tt.expectedErr)
 			}
-			if testcase.expect {
-				t.Fatalf("testcase %d expected to succeed but failed with %s", i, err)
+			// failures should match the empty authorization
+			if err != nil && !reflect.DeepEqual(gotAuth, tt.expectedAuth) {
+				t.Errorf("authorize() = %v, expected %v", gotAuth, tt.expectedAuth)
+				return
 			}
-		}
-		if auth.User != testcase.user {
-			t.Fatalf("testcase %d failed: expected user %q, got %q", i, testcase.user, auth.User)
-		}
-		if auth.Signer != testcase.signer {
-			t.Fatalf("testcase %d failed: expected signer %q, got %q", i, testcase.signer, auth.Signer)
-		}
+			// otherwise just check the user and signer
+			if gotAuth.User != tt.expectedAuth.User {
+				t.Fatalf("authorize() auth.User got %v expected %v", gotAuth.User, tt.expectedAuth.User)
+			}
+			if gotAuth.Signer != tt.expectedAuth.Signer {
+				t.Fatalf("authorize() auth.Signer got %v expected %v", gotAuth.Signer, tt.expectedAuth.Signer)
+			}
+		})
 	}
 }
 
