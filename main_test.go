@@ -126,7 +126,7 @@ func TestHeartbeatRequestFailure(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil)
 	w := httptest.NewRecorder()
 
-	heartbeatBadURLBody := []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from :///__heartbeat__: parse :///__heartbeat__: missing protocol scheme\"}")
+	heartbeatBadURLBody := []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from :///__heartbeat__: parse \\\":///__heartbeat__\\\": missing protocol scheme\"}")
 
 	heartbeatHandler(w, req)
 
