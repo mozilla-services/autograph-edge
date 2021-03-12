@@ -168,13 +168,13 @@ func Test_findDuplicateClientToken(t *testing.T) {
 			args: args{
 				auths: []authorization{
 					authorization{
-						Token: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
 					},
 					authorization{
-						Token: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
+						ClientToken: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
 					},
 					authorization{
-						Token: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
+						ClientToken: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
 					},
 				},
 			},
@@ -185,12 +185,12 @@ func Test_findDuplicateClientToken(t *testing.T) {
 			args: args{
 				auths: []authorization{
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "spam",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "spam",
 					},
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "eggs",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "eggs",
 					},
 				},
 			},
@@ -201,18 +201,18 @@ func Test_findDuplicateClientToken(t *testing.T) {
 			args: args{
 				auths: []authorization{
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "spam",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "spam",
 					},
 					authorization{
-						Token: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
+						ClientToken: "b8c8c00f310c9e160dda75790df6be106e29607fde3c1092287d026c014be880",
 					},
 					authorization{
-						Token: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
+						ClientToken: "dd095f88adbf7bdfa18b06e23e83896107d7e0f969f7415830028fa2c1ccf9fd",
 					},
 					authorization{
-						Token:  "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-						Signer: "eggs",
+						ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+						Signer:      "eggs",
 					},
 				},
 			},
@@ -223,6 +223,112 @@ func Test_findDuplicateClientToken(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := findDuplicateClientToken(tt.args.auths); (err != nil) != tt.wantErr {
 				t.Errorf("findDuplicateClientToken() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_validateAuth(t *testing.T) {
+	type args struct {
+		auth authorization
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "valid auth",
+			args: args{
+				auth: authorization{
+					ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:      "extensions-ecdsa",
+					User:        "alice",
+					Key:         "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "valid auth with all optional fields",
+			args: args{
+				auth: authorization{
+					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:              "extensions-ecdsa",
+					User:                "alice",
+					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+					AddonID:             "mycoseaddon@allizom.org",
+					AddonPKCS7Digest:    "SHA256",
+					AddonCOSEAlgorithms: []string{"ES256"},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid auth empty client token",
+			args: args{
+				auth: authorization{
+					ClientToken:         "",
+					Signer:              "extensions-ecdsa",
+					User:                "alice",
+					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid auth short client token",
+			args: args{
+				auth: authorization{
+					ClientToken:         "1234",
+					Signer:              "extensions-ecdsa",
+					User:                "alice",
+					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid auth empty autograph signer id",
+			args: args{
+				auth: authorization{
+					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:              "",
+					User:                "alice",
+					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid auth empty autograph user id",
+			args: args{
+				auth: authorization{
+					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:              "extensions-ecdsa",
+					User:                "",
+					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid auth empty autograph user key",
+			args: args{
+				auth: authorization{
+					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:              "extensions-ecdsa",
+					User:                "alice",
+					Key:                 "",
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateAuth(tt.args.auth); (err != nil) != tt.wantErr {
+				t.Errorf("validateAuth() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

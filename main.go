@@ -37,7 +37,7 @@ type configuration struct {
 }
 
 type authorization struct {
-	Token               string
+	ClientToken         string `yaml:"client_token"`
 	Signer              string
 	User                string
 	Key                 string
@@ -71,6 +71,12 @@ func main() {
 	err := conf.loadFromFile(cfgFile)
 	if err != nil {
 		log.Fatal(err)
+	}
+	for i, auth := range conf.Authorizations {
+		err = validateAuth(auth)
+		if err != nil {
+			log.Fatalf("error validating auth %d %q", i, err)
+		}
 	}
 	err = findDuplicateClientToken(conf.Authorizations)
 	if err != nil {
@@ -197,7 +203,7 @@ func (c *configuration) loadFromFile(path string) error {
 
 func authorize(authHeader string) (auth authorization, err error) {
 	for _, auth := range conf.Authorizations {
-		if authHeader == auth.Token {
+		if authHeader == auth.ClientToken {
 			return auth, nil
 		}
 	}
@@ -299,11 +305,31 @@ func findDuplicateClientToken(auths []authorization) error {
 	seenTokenIndexes := map[string]int{}
 
 	for i, auth := range auths {
-		seenTokenIndex, exists := seenTokenIndexes[auth.Token]
+		seenTokenIndex, exists := seenTokenIndexes[auth.ClientToken]
 		if exists {
 			return fmt.Errorf("found duplicate client token at positions %d and %d", seenTokenIndex, i)
 		}
-		seenTokenIndexes[auth.Token] = i
+		seenTokenIndexes[auth.ClientToken] = i
+	}
+	return nil
+}
+
+// vaidateAuth returns an error for auths with:
+//
+// a short (<60 chars) ClientToken
+// missing or empty required field autograph user, signer, or key
+func validateAuth(auth authorization) error {
+	if len(auth.ClientToken) < 60 {
+		return fmt.Errorf("client token is too short (%d chars) want at least 60", len(auth.ClientToken))
+	}
+	if auth.Signer == "" {
+		return fmt.Errorf("upstream autograph signer ID is empty")
+	}
+	if auth.User == "" {
+		return fmt.Errorf("upstream autograph user name is empty")
+	}
+	if auth.Key == "" {
+		return fmt.Errorf("upstream autograph user key is empty")
 	}
 	return nil
 }
