@@ -307,10 +307,10 @@ func Test_validateAuth(t *testing.T) {
 			name: "invalid auth empty client token",
 			args: args{
 				auth: authorization{
-					ClientToken:         "",
-					Signer:              "extensions-ecdsa",
-					User:                "alice",
-					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+					ClientToken: "",
+					Signer:      "extensions-ecdsa",
+					User:        "alice",
+					Key:         "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
 				},
 			},
 			wantErr: true,
@@ -319,10 +319,10 @@ func Test_validateAuth(t *testing.T) {
 			name: "invalid auth short client token",
 			args: args{
 				auth: authorization{
-					ClientToken:         "1234",
-					Signer:              "extensions-ecdsa",
-					User:                "alice",
-					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+					ClientToken: "1234",
+					Signer:      "extensions-ecdsa",
+					User:        "alice",
+					Key:         "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
 				},
 			},
 			wantErr: true,
@@ -331,10 +331,10 @@ func Test_validateAuth(t *testing.T) {
 			name: "invalid auth empty autograph signer id",
 			args: args{
 				auth: authorization{
-					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-					Signer:              "",
-					User:                "alice",
-					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+					ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:      "",
+					User:        "alice",
+					Key:         "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
 				},
 			},
 			wantErr: true,
@@ -343,10 +343,10 @@ func Test_validateAuth(t *testing.T) {
 			name: "invalid auth empty autograph user id",
 			args: args{
 				auth: authorization{
-					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-					Signer:              "extensions-ecdsa",
-					User:                "",
-					Key:                 "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
+					ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:      "extensions-ecdsa",
+					User:        "",
+					Key:         "fs5wgcer9qj819kfptdlp8gm227ewxnzvsuj9ztycsx08hfhzu",
 				},
 			},
 			wantErr: true,
@@ -355,10 +355,10 @@ func Test_validateAuth(t *testing.T) {
 			name: "invalid auth empty autograph user key",
 			args: args{
 				auth: authorization{
-					ClientToken:         "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
-					Signer:              "extensions-ecdsa",
-					User:                "alice",
-					Key:                 "",
+					ClientToken: "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+					Signer:      "extensions-ecdsa",
+					User:        "alice",
+					Key:         "",
 				},
 			},
 			wantErr: true,
