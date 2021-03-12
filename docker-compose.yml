@@ -15,7 +15,7 @@ services:
       [
         "/usr/local/bin/autograph-edge",
         "-u",
-        "http://app:8000/sign/file",
+        "http://app:8000/",
       ]
   test:
     build:

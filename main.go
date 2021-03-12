@@ -32,7 +32,7 @@ var (
 )
 
 type configuration struct {
-	URL            string
+	BaseURL        string `yaml:"autograph_base_url"`
 	Authorizations []authorization
 }
 
@@ -61,11 +61,11 @@ func init() {
 
 func main() {
 	var (
-		cfgFile      string
-		autographURL string
+		cfgFile          string
+		autographBaseURL string
 	)
 	flag.StringVar(&cfgFile, "c", "autograph-edge.yaml", "Path to configuration file")
-	flag.StringVar(&autographURL, "u", "", "Upstream Autograph URL")
+	flag.StringVar(&autographBaseURL, "u", "", "Upstream Autograph Base URL with a trailing slash e.g. http://localhost:8000/")
 	flag.Parse()
 
 	err := conf.loadFromFile(cfgFile)
@@ -83,9 +83,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if autographURL != "" {
-		log.Infof("using commandline autograph URL %s instead of conf %s", autographURL, conf.URL)
-		conf.URL = autographURL
+	if autographBaseURL != "" {
+		log.Infof("using commandline autograph URL %s instead of conf %s", autographBaseURL, conf.BaseURL)
+		conf.BaseURL = autographBaseURL
 	}
 
 	http.HandleFunc("/sign", sigHandler)
@@ -93,7 +93,7 @@ func main() {
 	http.HandleFunc("/__heartbeat__", heartbeatHandler)
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
 
-	log.Infof("start server on port 8080 with upstream autograph %s", conf.URL)
+	log.Infof("start server on port 8080 with upstream autograph base URL %s", conf.BaseURL)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -264,9 +264,9 @@ func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
 	st.Status = true
 	st.Checks.CheckAutographHeartbeat = true
 
-	u, err := url.Parse(conf.URL)
+	u, err := url.Parse(conf.BaseURL)
 	if err != nil {
-		log.Printf("failed to parse conf url %q: %v", conf.URL, err)
+		log.Printf("failed to parse conf url %q: %v", conf.BaseURL, err)
 		httpError(w, r, http.StatusInternalServerError, "failed to parse conf URL")
 		return
 	}
