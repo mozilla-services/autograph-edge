@@ -72,6 +72,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	for i, auth := range conf.Authorizations {
+		err = validateAuth(auth)
+		if err != nil {
+			log.Fatalf("error validating auth %d %q", i, err)
+		}
+	}
 	err = findDuplicateClientToken(conf.Authorizations)
 	if err != nil {
 		log.Fatal(err)
@@ -304,6 +310,26 @@ func findDuplicateClientToken(auths []authorization) error {
 			return fmt.Errorf("found duplicate client token at positions %d and %d", seenTokenIndex, i)
 		}
 		seenTokenIndexes[auth.ClientToken] = i
+	}
+	return nil
+}
+
+// vaidateAuth returns an error for auths with:
+//
+// a short (<60 chars) ClientToken
+// missing or empty required field autograph user, signer, or key
+func validateAuth(auth authorization) error {
+	if len(auth.ClientToken) < 60 {
+		return fmt.Errorf("client token is too short (%d chars) want at least 60", len(auth.ClientToken))
+	}
+	if auth.Signer == "" {
+		return fmt.Errorf("upstream autograph signer ID is empty")
+	}
+	if auth.User == "" {
+		return fmt.Errorf("upstream autograph user name is empty")
+	}
+	if auth.Key == "" {
+		return fmt.Errorf("upstream autograph user key is empty")
 	}
 	return nil
 }
