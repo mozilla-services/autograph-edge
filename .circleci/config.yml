@@ -6,6 +6,24 @@
 #
 version: 2.1
 jobs:
+  unit-test:
+    docker:
+        - image: circleci/golang:1.16-buster
+    steps:
+      - checkout
+
+      - run:
+          name: Run unit tests
+          command: |
+              sudo apt -y install libltdl-dev
+              PATH=/usr/local/go/bin:$PATH make test
+
+      - run:
+          name: Report unit test coverage
+          command: |
+              go get github.com/mattn/goveralls
+              goveralls -coverprofile=coverage.out -service=circle-ci -repotoken $COVERALLS_REPO_TOKEN
+
   test:
     docker:
         - image: circleci/golang:1.16-buster
@@ -110,6 +128,11 @@ workflows:
   version: 2
   test-verify-build-deploy:
     jobs:
+      - unit-test:
+          filters:
+            tags:
+              only: /.*/
+
       - test:
           filters:
             tags:
