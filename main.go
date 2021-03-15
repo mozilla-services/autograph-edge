@@ -94,7 +94,7 @@ func main() {
 
 	http.HandleFunc("/sign", sigHandler)
 	http.HandleFunc("/__version__", versionHandler)
-	http.HandleFunc("/__heartbeat__", heartbeatHandler(conf.BaseURL))
+	http.HandleFunc("/__heartbeat__", heartbeatHandler(conf.BaseURL, &heartbeatClient{&http.Client{}}))
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
 
 	log.Infof("start server on port 8080 with upstream autograph base URL %s", conf.BaseURL)
@@ -262,16 +262,16 @@ func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
 
 // send a GET request to the autograph heartbeat endpoint and
 // evaluate its status code before responding
-func heartbeatHandler(baseURL string) http.HandlerFunc {
+func heartbeatHandler(baseURL string, client heartbeatRequester) http.HandlerFunc {
 	var (
 		st           heartbeat
-		heartbeatURL string = baseURL + "/__heartbeat__"
+		heartbeatURL string = baseURL + "__heartbeat__"
 	)
 	return func(w http.ResponseWriter, r *http.Request) {
 		// assume the best, change if we encounter errors
 		st.Status = true
 		st.Checks.CheckAutographHeartbeat = true
-		resp, err := http.Get(heartbeatURL)
+		resp, err := client.Get(heartbeatURL)
 		if err != nil {
 			st.Checks.CheckAutographHeartbeat = false
 			st.Status = false
