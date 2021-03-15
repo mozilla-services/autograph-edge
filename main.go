@@ -174,6 +174,7 @@ func sigHandler(w http.ResponseWriter, r *http.Request) {
 		"output_sha256": outputSha256,
 	}).Info("returning signed data")
 
+	addWebSecurityHeaders(w)
 	w.Header().Add("Content-Type", "application/octet-stream")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(output)
@@ -228,12 +229,14 @@ func httpError(w http.ResponseWriter, r *http.Request, errorCode int, errorMessa
 		io.Copy(ioutil.Discard, r.Body)
 		r.Body.Close()
 	}
+	addWebSecurityHeaders(w)
 	http.Error(w, msg, errorCode)
 	return
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	addWebSecurityHeaders(w)
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonVersion)
 }
@@ -247,6 +250,7 @@ type heartbeat struct {
 }
 
 func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
+	addWebSecurityHeaders(w)
 	w.Header().Set("Content-Type", "application/json")
 	if !st.Status {
 		log.Println(st.Details)
@@ -348,4 +352,14 @@ func validateBaseURL(baseURL string) error {
 		return fmt.Errorf("url does not end with a trailing slash %v", baseURL)
 	}
 	return nil
+}
+
+// addWebSecurityHeaders adds web security headers suitable for API
+// responses to a response writer
+func addWebSecurityHeaders(w http.ResponseWriter) {
+	w.Header().Add("Content-Security-Policy", "default-src 'none'; object-src 'none';")
+	w.Header().Add("X-Frame-Options", "DENY")
+	w.Header().Add("X-Content-Type-Options", "nosniff")
+	w.Header().Add("Strict-Transport-Security", "max-age=31536000;")
+	return
 }
