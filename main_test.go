@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,6 +10,9 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	gomock "github.com/golang/mock/gomock"
+	"github.com/mozilla-services/autograph-edge/mock_main"
 )
 
 func TestMain(m *testing.M) {
@@ -94,7 +98,8 @@ func Test_authorize(t *testing.T) {
 
 func Test_heartbeatHandler(t *testing.T) {
 	type args struct {
-		r *http.Request
+		baseURL string
+		r       *http.Request
 	}
 	type expectedResponse struct {
 		status      int
@@ -102,18 +107,24 @@ func Test_heartbeatHandler(t *testing.T) {
 		contentType string
 	}
 	tests := []struct {
-		name string
-		args args
-		// upstream autograph signing URL
-		autographURL     string
+		name             string
+		args             args
+		upstreamResponse *http.Response
+		upstreamErr      error
 		expectedResponse expectedResponse
 	}{
 		{
-			name: "heartbeak OK",
+			name: "edge heartbeat OK when autograph app returns 200",
 			args: args{
-				r: httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
+				baseURL: conf.BaseURL,
+				r:       httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
 			},
-			autographURL: conf.BaseURL,
+			upstreamResponse: &http.Response{
+				Status:     http.StatusText(http.StatusOK),
+				StatusCode: http.StatusOK,
+				Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+			},
+			upstreamErr: nil,
 			expectedResponse: expectedResponse{
 				status:      http.StatusOK,
 				contentType: "application/json",
@@ -121,49 +132,64 @@ func Test_heartbeatHandler(t *testing.T) {
 			},
 		},
 		{
-			name: "heartbeat failure bad request failure",
+			name: "edge heartbeat 503 when autograph app returns 502",
 			args: args{
-				r: httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
+				baseURL: conf.BaseURL,
+				r:       httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
 			},
-			autographURL: "",
+			upstreamResponse: &http.Response{
+				Status:     http.StatusText(http.StatusBadGateway),
+				StatusCode: http.StatusBadGateway,
+				Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+			},
+			upstreamErr: nil,
 			expectedResponse: expectedResponse{
 				status:      http.StatusServiceUnavailable,
 				contentType: "application/json",
-				body:        []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from :///__heartbeat__: parse \\\":///__heartbeat__\\\": missing protocol scheme\"}"),
+				body:        []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"upstream autograph returned heartbeat code 502 Bad Gateway\"}"),
 			},
 		},
 		{
-			name: "heartbeat failure bad upstream url",
+			name: "edge heartbeat 503 when autograph app is down",
 			args: args{
-				r: httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
+				baseURL: conf.BaseURL,
+				r:       httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
 			},
-			autographURL: "%gh&%ij",
+			upstreamResponse: &http.Response{},
+			upstreamErr:      fmt.Errorf("Get \"http://localhost:8000/__heartbeat__\": dial tcp 127.0.0.1:8000: connect: connection refused <nil>"),
 			expectedResponse: expectedResponse{
-				status:      http.StatusInternalServerError,
-				contentType: "text/plain; charset=utf-8",
-				body:        []byte("failed to parse conf URL\n"),
+				status:      http.StatusServiceUnavailable,
+				contentType: "application/json",
+				body:        []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from http://localhost:8000/__heartbeat__: Get \\\"http://localhost:8000/__heartbeat__\\\": dial tcp 127.0.0.1:8000: connect: connection refused \\u003cnil\\u003e\"}"),
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			origURL := conf.BaseURL
+			var client heartbeatRequester
+			if os.Getenv("MOCK_AUTOGRAPH_CALLS") == string("1") {
+				ctrl := gomock.NewController(t)
+				defer ctrl.Finish()
 
-			conf.BaseURL = tt.autographURL
+				clientMock := mock_main.NewMockheartbeatRequester(ctrl)
+				clientMock.EXPECT().Get(tt.args.baseURL+"__heartbeat__").Return(tt.upstreamResponse, tt.upstreamErr)
+				client = clientMock
+			} else {
+				client = &heartbeatClient{&http.Client{}}
+			}
+
 			w := httptest.NewRecorder()
 
-			heartbeatHandler(w, tt.args.r)
+			heartbeatHandler(tt.args.baseURL, client)(w, tt.args.r)
 
 			resp := w.Result()
 			body, _ := ioutil.ReadAll(resp.Body)
-
-			conf.BaseURL = origURL
 
 			if resp.StatusCode != tt.expectedResponse.status {
 				t.Fatalf("heartbeatHandler() returned unexpected status %v expected %v", resp.StatusCode, tt.expectedResponse.status)
 			}
 			if !bytes.Equal(body, tt.expectedResponse.body) {
-				t.Fatalf("heartbeatHandler() returned body %s and expected %s", body, tt.expectedResponse.body)
+				t.Fatalf("heartbeatHandler() returned body:\n%s\nand expected:\n%s", body, tt.expectedResponse.body)
 			}
 			if resp.Header.Get("Content-Type") != tt.expectedResponse.contentType {
 				t.Fatalf("heartbeatHandler() returned unexpected content type: %s, expected %s", resp.Header.Get("Content-Type"), tt.expectedResponse.contentType)
@@ -374,6 +400,55 @@ func Test_validateAuth(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := validateAuth(tt.args.auth); (err != nil) != tt.wantErr {
 				t.Errorf("validateAuth() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_validateBaseURL(t *testing.T) {
+	t.Parallel()
+
+	type args struct {
+		baseURL string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "example config base url",
+			args: args{
+				baseURL: "http://localhost:8000/",
+			},
+			wantErr: false,
+		},
+		{
+			name: "example config base url without trailing slash errs",
+			args: args{
+				baseURL: "http://localhost:8000",
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty base url errs",
+			args: args{
+				baseURL: "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "unparseable base url errs",
+			args: args{
+				baseURL: "%gh&%ij",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateBaseURL(tt.args.baseURL); (err != nil) != tt.wantErr {
+				t.Errorf("validateBaseURL() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

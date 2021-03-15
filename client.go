@@ -108,3 +108,11 @@ func callAutograph(auth authorization, body []byte, xff string) (signedBody []by
 	}
 	return base64.StdEncoding.DecodeString(responses[0].SignedFile)
 }
+
+type heartbeatRequester interface {
+	Get(string) (*http.Response, error)
+}
+
+type heartbeatClient struct {
+	*http.Client
+}

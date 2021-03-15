@@ -5,11 +5,13 @@ require (
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
 	github.com/aws/aws-sdk-go v1.37.25 // indirect
 	github.com/fatih/color v1.10.0 // indirect
+	github.com/golang/mock v1.4.4
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408 // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c // indirect
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84 // indirect
 	github.com/miekg/pkcs11 v0.0.0-20180425180052-287d9350987c // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
+	github.com/mozilla-services/autograph-edge v0.0.0-00010101000000-000000000000
 	github.com/mozilla-services/yaml v0.0.0-20201007153854-c369669a6625 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
@@ -28,3 +30,5 @@ require (
 )
 
 go 1.13
+
+replace github.com/mozilla-services/autograph-edge => ./
