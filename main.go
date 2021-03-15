@@ -94,7 +94,7 @@ func main() {
 
 	http.HandleFunc("/sign", sigHandler)
 	http.HandleFunc("/__version__", versionHandler)
-	http.HandleFunc("/__heartbeat__", heartbeatHandler)
+	http.HandleFunc("/__heartbeat__", heartbeatHandler(conf.BaseURL))
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
 
 	log.Infof("start server on port 8080 with upstream autograph base URL %s", conf.BaseURL)
@@ -262,37 +262,35 @@ func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
 
 // send a GET request to the autograph heartbeat endpoint and
 // evaluate its status code before responding
-func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
-	var st heartbeat
-	// assume the best, change if we encounter errors
-	st.Status = true
-	st.Checks.CheckAutographHeartbeat = true
-
-	u, err := url.Parse(conf.BaseURL)
-	if err != nil {
-		log.Printf("failed to parse conf url %q: %v", conf.BaseURL, err)
-		httpError(w, r, http.StatusInternalServerError, "failed to parse conf URL")
-		return
-	}
-	heartbeatURL := fmt.Sprintf("%s://%s/__heartbeat__", u.Scheme, u.Host)
-	resp, err := http.Get(heartbeatURL)
-	if err != nil {
-		st.Checks.CheckAutographHeartbeat = false
-		st.Status = false
-		st.Details = fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
+func heartbeatHandler(baseURL string) http.HandlerFunc {
+	var (
+		st           heartbeat
+		heartbeatURL string = baseURL + "/__heartbeat__"
+	)
+	return func(w http.ResponseWriter, r *http.Request) {
+		// assume the best, change if we encounter errors
+		st.Status = true
+		st.Checks.CheckAutographHeartbeat = true
+		resp, err := http.Get(heartbeatURL)
+		if err != nil {
+			st.Checks.CheckAutographHeartbeat = false
+			st.Status = false
+			st.Details = fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
+			writeHeartbeatResponse(w, st)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			st.Checks.CheckAutographHeartbeat = false
+			st.Status = false
+			st.Details = fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
+			writeHeartbeatResponse(w, st)
+			return
+		}
 		writeHeartbeatResponse(w, st)
-		return
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		st.Checks.CheckAutographHeartbeat = false
-		st.Status = false
-		st.Details = fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
-		writeHeartbeatResponse(w, st)
-		return
-	}
-	writeHeartbeatResponse(w, st)
 }
+
 func makeRequestID() string {
 	rid := make([]rune, 16)
 	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")

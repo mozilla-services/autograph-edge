@@ -120,44 +120,17 @@ func Test_heartbeatHandler(t *testing.T) {
 				body:        []byte("{\"status\":true,\"checks\":{\"check_autograph_heartbeat\":true},\"details\":\"\"}"),
 			},
 		},
-		{
-			name: "heartbeat failure bad request failure",
-			args: args{
-				r: httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
-			},
-			autographURL: "",
-			expectedResponse: expectedResponse{
-				status:      http.StatusServiceUnavailable,
-				contentType: "application/json",
-				body:        []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from :///__heartbeat__: parse \\\":///__heartbeat__\\\": missing protocol scheme\"}"),
-			},
-		},
-		{
-			name: "heartbeat failure bad upstream url",
-			args: args{
-				r: httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
-			},
-			autographURL: "%gh&%ij",
-			expectedResponse: expectedResponse{
-				status:      http.StatusInternalServerError,
-				contentType: "text/plain; charset=utf-8",
-				body:        []byte("failed to parse conf URL\n"),
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			origURL := conf.BaseURL
 
-			conf.BaseURL = tt.autographURL
 			w := httptest.NewRecorder()
 
-			heartbeatHandler(w, tt.args.r)
+			heartbeatHandler(tt.autographURL)(w, tt.args.r)
 
 			resp := w.Result()
 			body, _ := ioutil.ReadAll(resp.Body)
 
-			conf.BaseURL = origURL
 
 			if resp.StatusCode != tt.expectedResponse.status {
 				t.Fatalf("heartbeatHandler() returned unexpected status %v expected %v", resp.StatusCode, tt.expectedResponse.status)
