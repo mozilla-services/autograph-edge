@@ -378,3 +378,52 @@ func Test_validateAuth(t *testing.T) {
 		})
 	}
 }
+
+func Test_validateBaseURL(t *testing.T) {
+	t.Parallel()
+
+	type args struct {
+		baseURL string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "example config base url",
+			args: args{
+				baseURL: "http://localhost:8000/",
+			},
+			wantErr: false,
+		},
+		{
+			name: "example config base url without trailing slash errs",
+			args: args{
+				baseURL: "http://localhost:8000",
+			},
+			wantErr: true,
+		},
+		{
+			name: "empty base url errs",
+			args: args{
+				baseURL: "",
+			},
+			wantErr: true,
+		},
+		{
+			name: "unparseable base url errs",
+			args: args{
+				baseURL: "%gh&%ij",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateBaseURL(tt.args.baseURL); (err != nil) != tt.wantErr {
+				t.Errorf("validateBaseURL() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

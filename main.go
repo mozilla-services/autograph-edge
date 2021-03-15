@@ -87,6 +87,10 @@ func main() {
 		log.Infof("using commandline autograph URL %s instead of conf %s", autographBaseURL, conf.BaseURL)
 		conf.BaseURL = autographBaseURL
 	}
+	err = validateBaseURL(conf.BaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.HandleFunc("/sign", sigHandler)
 	http.HandleFunc("/__version__", versionHandler)
@@ -330,6 +334,19 @@ func validateAuth(auth authorization) error {
 	}
 	if auth.Key == "" {
 		return fmt.Errorf("upstream autograph user key is empty")
+	}
+	return nil
+}
+
+// validateBaseURL checks that the upstream autograph URL is parseable
+// and ends with a trailing slash
+func validateBaseURL(baseURL string) error {
+	_, err := url.Parse(baseURL)
+	if err != nil {
+		return fmt.Errorf("failed to parse url %q: %v", baseURL, err)
+	}
+	if !strings.HasSuffix(baseURL, "/") {
+		return fmt.Errorf("url does not end with a trailing slash %v", baseURL)
 	}
 	return nil
 }
