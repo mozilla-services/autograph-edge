@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -96,6 +97,7 @@ func main() {
 	http.HandleFunc("/__version__", versionHandler)
 	http.HandleFunc("/__heartbeat__", heartbeatHandler(conf.BaseURL, &heartbeatClient{&http.Client{}}))
 	http.HandleFunc("/__lbheartbeat__", versionHandler)
+	http.HandleFunc("/", notFoundHandler)
 
 	log.Infof("start server on port 8080 with upstream autograph base URL %s", conf.BaseURL)
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -173,6 +175,7 @@ func sigHandler(w http.ResponseWriter, r *http.Request) {
 		"output_sha256": outputSha256,
 	}).Info("returning signed data")
 
+	addWebSecurityHeaders(w)
 	w.Header().Add("Content-Type", "application/octet-stream")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(output)
@@ -207,7 +210,7 @@ func (c *configuration) loadFromFile(path string) error {
 
 func authorize(authHeader string) (auth authorization, err error) {
 	for _, auth := range conf.Authorizations {
-		if authHeader == auth.ClientToken {
+		if subtle.ConstantTimeCompare([]byte(authHeader), []byte(auth.ClientToken)) == 1 {
 			return auth, nil
 		}
 	}
@@ -227,12 +230,19 @@ func httpError(w http.ResponseWriter, r *http.Request, errorCode int, errorMessa
 		io.Copy(ioutil.Discard, r.Body)
 		r.Body.Close()
 	}
+	addWebSecurityHeaders(w)
 	http.Error(w, msg, errorCode)
+	return
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	httpError(w, r, http.StatusNotFound, "404 page not found")
 	return
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	addWebSecurityHeaders(w)
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonVersion)
 }
@@ -246,6 +256,7 @@ type heartbeat struct {
 }
 
 func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
+	addWebSecurityHeaders(w)
 	w.Header().Set("Content-Type", "application/json")
 	if !st.Status {
 		log.Println(st.Details)
@@ -347,4 +358,14 @@ func validateBaseURL(baseURL string) error {
 		return fmt.Errorf("url does not end with a trailing slash %v", baseURL)
 	}
 	return nil
+}
+
+// addWebSecurityHeaders adds web security headers suitable for API
+// responses to a response writer
+func addWebSecurityHeaders(w http.ResponseWriter) {
+	w.Header().Add("Content-Security-Policy", "default-src 'none'; object-src 'none';")
+	w.Header().Add("X-Frame-Options", "DENY")
+	w.Header().Add("X-Content-Type-Options", "nosniff")
+	w.Header().Add("Strict-Transport-Security", "max-age=31536000;")
+	return
 }
