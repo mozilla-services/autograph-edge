@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -207,7 +208,7 @@ func (c *configuration) loadFromFile(path string) error {
 
 func authorize(authHeader string) (auth authorization, err error) {
 	for _, auth := range conf.Authorizations {
-		if authHeader == auth.ClientToken {
+		if subtle.ConstantTimeCompare([]byte(authHeader), []byte(auth.ClientToken)) == 1 {
 			return auth, nil
 		}
 	}
