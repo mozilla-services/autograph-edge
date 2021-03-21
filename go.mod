@@ -5,7 +5,7 @@ require (
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
 	github.com/aws/aws-sdk-go v1.37.25 // indirect
 	github.com/fatih/color v1.10.0 // indirect
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.5.0
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408 // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c // indirect
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84 // indirect
