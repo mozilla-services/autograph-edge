@@ -6,9 +6,9 @@ RUN apt update && \
     apt -y install clang libltdl-dev && \
     apt-get clean
 
-ADD . $GOPATH/src/go.mozilla.org/autograph-edge
+ADD . $GOPATH/src/github.com/mozilla-services/autograph-edge
 
-RUN cd $GOPATH/src/go.mozilla.org/autograph-edge && \
+RUN cd $GOPATH/src/github.com/mozilla-services/autograph-edge && \
     make install
 
 RUN apt-get -y remove clang && \
