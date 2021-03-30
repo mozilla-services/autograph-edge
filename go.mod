@@ -1,4 +1,4 @@
-module go.mozilla.org/autograph-edge
+module github.com/mozilla-services/autograph-edge
 
 require (
 	cloud.google.com/go v0.78.0 // indirect
@@ -11,7 +11,6 @@ require (
 	github.com/lib/pq v0.0.0-20180523175426-90697d60dd84 // indirect
 	github.com/miekg/pkcs11 v0.0.0-20180425180052-287d9350987c // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
-	github.com/mozilla-services/autograph-edge v0.0.0-00010101000000-000000000000
 	github.com/mozilla-services/yaml v0.0.0-20201007153854-c369669a6625 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
@@ -30,5 +29,3 @@ require (
 )
 
 go 1.13
-
-replace github.com/mozilla-services/autograph-edge => ./
