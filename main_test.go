@@ -218,6 +218,25 @@ func TestVersion(t *testing.T) {
 	}
 }
 
+func TestNotFoundHandler(t *testing.T) {
+	req := httptest.NewRequest("GET", "http://localhost:8080/", nil)
+	w := httptest.NewRecorder()
+	notFoundHandler(w, req)
+
+	resp := w.Result()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
+	}
+	if !bytes.Equal(body, []byte("404 page not found\n")) {
+		t.Fatalf("failed to return 404 contents got %q and expected %q", body, "404 page not found\n")
+	}
+	if resp.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
+		t.Fatalf("notFoundHandler returned unexpected content type: %q", resp.Header.Get("Content-Type"))
+	}
+}
+
 func Test_findDuplicateClientToken(t *testing.T) {
 	type args struct {
 		auths []authorization

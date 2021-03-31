@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"crypto/subtle"
+	_ "embed"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -47,17 +48,12 @@ type authorization struct {
 	AddonCOSEAlgorithms []string
 }
 
+//go:embed "version.json"
 var jsonVersion []byte
 
 func init() {
 	// initialize the logger
 	mozlogrus.Enable("autograph-edge")
-
-	var err error
-	jsonVersion, err = ioutil.ReadFile("version.json")
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func main() {
