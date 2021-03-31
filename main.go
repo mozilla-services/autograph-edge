@@ -54,6 +54,17 @@ func init() {
 }
 
 func main() {
+	parseArgsAndLoadConf()
+	server := prepareServer()
+
+	log.Infof("starting autograph-edge on port 8080 with upstream autograph base URL %s", conf.BaseURL)
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func parseArgsAndLoadConf() {
 	var (
 		cfgFile          string
 		autographBaseURL string
@@ -85,7 +96,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
 
+func prepareServer() *http.Server {
 	http.Handle("/sign",
 		handleWithMiddleware(
 			http.HandlerFunc(sigHandler),
@@ -119,15 +132,8 @@ func main() {
 			setResponseHeaders(),
 		),
 	)
-
-	server := &http.Server{
+	return &http.Server{
 		Addr: ":8080",
-	}
-
-	log.Infof("starting autograph-edge on port 8080 with upstream autograph base URL %s", conf.BaseURL)
-	err = server.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
 	}
 }
 
