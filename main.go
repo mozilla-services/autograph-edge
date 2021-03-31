@@ -1,15 +1,12 @@
 package main
 
 import (
-	"crypto/sha256"
 	"crypto/subtle"
 	_ "embed"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
@@ -57,6 +54,17 @@ func init() {
 }
 
 func main() {
+	parseArgsAndLoadConf()
+	server := prepareServer()
+
+	log.Infof("starting autograph-edge on port 8080 with upstream autograph base URL %s", conf.BaseURL)
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func parseArgsAndLoadConf() {
 	var (
 		cfgFile          string
 		autographBaseURL string
@@ -88,93 +96,45 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	http.HandleFunc("/sign", sigHandler)
-	http.HandleFunc("/__version__", versionHandler)
-	http.HandleFunc("/__heartbeat__", heartbeatHandler(conf.BaseURL, &heartbeatClient{&http.Client{}}))
-	http.HandleFunc("/__lbheartbeat__", versionHandler)
-	http.HandleFunc("/", notFoundHandler)
-
-	log.Infof("start server on port 8080 with upstream autograph base URL %s", conf.BaseURL)
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-// sigHandler receives input body must
-// contain a base64 encoded file to sign, and the response body contains a base64 encoded
-// signed file. The Authorization header of the http request must contain a valid token.
-func sigHandler(w http.ResponseWriter, r *http.Request) {
-	rid := makeRequestID()
-	log.WithFields(log.Fields{
-		"remoteAddressChain": "[" + r.Header.Get("X-Forwarded-For") + "]",
-		"method":             r.Method,
-		"proto":              r.Proto,
-		"url":                r.URL.String(),
-		"ua":                 r.UserAgent(),
-		"rid":                rid,
-	}).Info("request")
-
-	// some sanity checking on the request
-	if r.Method != http.MethodPost {
-		log.WithFields(log.Fields{"rid": rid}).Error("invalid method")
-		httpError(w, r, http.StatusMethodNotAllowed, "invalid method")
-		return
+func prepareServer() *http.Server {
+	http.Handle("/sign",
+		handleWithMiddleware(
+			http.HandlerFunc(sigHandler),
+			setRequestID(),
+			setResponseHeaders(),
+		),
+	)
+	http.Handle("/__version__",
+		handleWithMiddleware(
+			http.HandlerFunc(versionHandler),
+			setResponseHeaders(),
+		),
+	)
+	http.Handle("/__heartbeat__",
+		handleWithMiddleware(
+			http.HandlerFunc(
+				heartbeatHandler(conf.BaseURL, &heartbeatClient{&http.Client{}}),
+			),
+			setResponseHeaders(),
+		),
+	)
+	http.Handle("/__lbheartbeat__",
+		handleWithMiddleware(
+			http.HandlerFunc(versionHandler),
+			setResponseHeaders(),
+		),
+	)
+	http.Handle("/",
+		handleWithMiddleware(
+			http.HandlerFunc(notFoundHandler),
+			setResponseHeaders(),
+		),
+	)
+	return &http.Server{
+		Addr: ":8080",
 	}
-	if len(r.Header.Get("Authorization")) < 60 {
-		log.WithFields(log.Fields{"rid": rid}).Error("missing authorization header")
-		httpError(w, r, http.StatusUnauthorized, "missing authorization header")
-		return
-	}
-	// verify auth token
-	auth, err := authorize(r.Header.Get("Authorization"))
-	if err != nil {
-		log.WithFields(log.Fields{"rid": rid}).Error(err)
-		httpError(w, r, http.StatusUnauthorized, "not authorized")
-		return
-	}
-
-	fd, fdHeader, err := r.FormFile("input")
-	if err != nil {
-		log.WithFields(log.Fields{"rid": rid}).Error(err)
-		httpError(w, r, http.StatusBadRequest, "failed to read form data")
-		return
-	}
-	defer fd.Close()
-
-	input := make([]byte, fdHeader.Size)
-	_, err = io.ReadFull(fd, input)
-	if err != nil {
-		log.WithFields(log.Fields{"rid": rid}).Error(err)
-		httpError(w, r, http.StatusBadRequest, "failed to read input")
-		return
-	}
-	inputSha256 := fmt.Sprintf("%x", sha256.Sum256(input))
-
-	// prepare an x-forwarded-for by reusing the values received and adding the client IP
-	clientip := strings.Split(r.RemoteAddr, ":")
-	xff := strings.Join([]string{
-		r.Header.Get("X-Forwarded-For"),
-		strings.Join(clientip[:len(clientip)-1], ":")},
-		",")
-
-	// let's get this file signed!
-	output, err := callAutograph(auth, input, xff)
-	if err != nil {
-		log.WithFields(log.Fields{"rid": rid, "input_sha256": inputSha256}).Error(err)
-		httpError(w, r, http.StatusBadGateway, "failed to call autograph for signature")
-		return
-	}
-	outputSha256 := fmt.Sprintf("%x", sha256.Sum256(output))
-
-	log.WithFields(log.Fields{"rid": rid,
-		"user":          auth.User,
-		"input_sha256":  inputSha256,
-		"output_sha256": outputSha256,
-	}).Info("returning signed data")
-
-	addWebSecurityHeaders(w)
-	w.Header().Add("Content-Type", "application/octet-stream")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(output)
 }
 
 // loadFromFile reads a configuration from a local file
@@ -226,85 +186,8 @@ func httpError(w http.ResponseWriter, r *http.Request, errorCode int, errorMessa
 		io.Copy(ioutil.Discard, r.Body)
 		r.Body.Close()
 	}
-	addWebSecurityHeaders(w)
 	http.Error(w, msg, errorCode)
 	return
-}
-
-func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	httpError(w, r, http.StatusNotFound, "404 page not found")
-	return
-}
-
-func versionHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	addWebSecurityHeaders(w)
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonVersion)
-}
-
-type heartbeat struct {
-	Status bool `json:"status"`
-	Checks struct {
-		CheckAutographHeartbeat bool `json:"check_autograph_heartbeat"`
-	} `json:"checks"`
-	Details string `json:"details"`
-}
-
-func writeHeartbeatResponse(w http.ResponseWriter, st heartbeat) {
-	addWebSecurityHeaders(w)
-	w.Header().Set("Content-Type", "application/json")
-	if !st.Status {
-		log.Println(st.Details)
-		w.WriteHeader(http.StatusServiceUnavailable)
-	} else {
-		w.WriteHeader(http.StatusOK)
-	}
-	jsonSt, err := json.Marshal(st)
-	if err != nil {
-		log.Fatalf("failed to marshal heartbeat status: %v", err)
-	}
-	w.Write(jsonSt)
-}
-
-// send a GET request to the autograph heartbeat endpoint and
-// evaluate its status code before responding
-func heartbeatHandler(baseURL string, client heartbeatRequester) http.HandlerFunc {
-	var (
-		st           heartbeat
-		heartbeatURL string = baseURL + "__heartbeat__"
-	)
-	return func(w http.ResponseWriter, r *http.Request) {
-		// assume the best, change if we encounter errors
-		st.Status = true
-		st.Checks.CheckAutographHeartbeat = true
-		resp, err := client.Get(heartbeatURL)
-		if err != nil {
-			st.Checks.CheckAutographHeartbeat = false
-			st.Status = false
-			st.Details = fmt.Sprintf("failed to request autograph heartbeat from %s: %v", heartbeatURL, err)
-			writeHeartbeatResponse(w, st)
-			return
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			st.Checks.CheckAutographHeartbeat = false
-			st.Status = false
-			st.Details = fmt.Sprintf("upstream autograph returned heartbeat code %d %s", resp.StatusCode, resp.Status)
-			writeHeartbeatResponse(w, st)
-			return
-		}
-		writeHeartbeatResponse(w, st)
-	}
-}
-
-func makeRequestID() string {
-	rid := make([]rune, 16)
-	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	for i := range rid {
-		rid[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(rid)
 }
 
 // findDuplicateClientToken returns an error if it finds a duplicate
@@ -354,14 +237,4 @@ func validateBaseURL(baseURL string) error {
 		return fmt.Errorf("url does not end with a trailing slash %v", baseURL)
 	}
 	return nil
-}
-
-// addWebSecurityHeaders adds web security headers suitable for API
-// responses to a response writer
-func addWebSecurityHeaders(w http.ResponseWriter) {
-	w.Header().Add("Content-Security-Policy", "default-src 'none'; object-src 'none';")
-	w.Header().Add("X-Frame-Options", "DENY")
-	w.Header().Add("X-Content-Type-Options", "nosniff")
-	w.Header().Add("Strict-Transport-Security", "max-age=31536000;")
-	return
 }

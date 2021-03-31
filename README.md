@@ -1,5 +1,7 @@
 [![CircleCI](https://circleci.com/gh/mozilla-services/autograph-edge.svg?style=svg)](https://circleci.com/gh/mozilla-services/autograph-edge)
 
+[![Coverage Status](https://coveralls.io/repos/github/mozilla-services/autograph-edge/badge.svg?branch=main)](https://coveralls.io/github/mozilla-services/autograph-edge?branch=main)
+
 Autograph edge
 ==============
 

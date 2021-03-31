@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,13 +11,9 @@ import (
 	"os"
 	"reflect"
 	"testing"
-
-	gomock "github.com/golang/mock/gomock"
-	"github.com/mozilla-services/autograph-edge/mock_main"
 )
 
 func TestMain(m *testing.M) {
-	// load the signers
 	err := conf.loadFromFile("./autograph-edge.yaml")
 	if err != nil {
 		log.Fatal(err)
@@ -93,147 +90,6 @@ func Test_authorize(t *testing.T) {
 				t.Fatalf("authorize() auth.Signer got %v expected %v", gotAuth.Signer, tt.expectedAuth.Signer)
 			}
 		})
-	}
-}
-
-func Test_heartbeatHandler(t *testing.T) {
-	type args struct {
-		baseURL string
-		r       *http.Request
-	}
-	type expectedResponse struct {
-		status      int
-		body        []byte
-		contentType string
-	}
-	tests := []struct {
-		name             string
-		args             args
-		upstreamResponse *http.Response
-		upstreamErr      error
-		expectedResponse expectedResponse
-	}{
-		{
-			name: "edge heartbeat OK when autograph app returns 200",
-			args: args{
-				baseURL: conf.BaseURL,
-				r:       httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
-			},
-			upstreamResponse: &http.Response{
-				Status:     http.StatusText(http.StatusOK),
-				StatusCode: http.StatusOK,
-				Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
-			},
-			upstreamErr: nil,
-			expectedResponse: expectedResponse{
-				status:      http.StatusOK,
-				contentType: "application/json",
-				body:        []byte("{\"status\":true,\"checks\":{\"check_autograph_heartbeat\":true},\"details\":\"\"}"),
-			},
-		},
-		{
-			name: "edge heartbeat 503 when autograph app returns 502",
-			args: args{
-				baseURL: conf.BaseURL,
-				r:       httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
-			},
-			upstreamResponse: &http.Response{
-				Status:     http.StatusText(http.StatusBadGateway),
-				StatusCode: http.StatusBadGateway,
-				Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
-			},
-			upstreamErr: nil,
-			expectedResponse: expectedResponse{
-				status:      http.StatusServiceUnavailable,
-				contentType: "application/json",
-				body:        []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"upstream autograph returned heartbeat code 502 Bad Gateway\"}"),
-			},
-		},
-		{
-			name: "edge heartbeat 503 when autograph app is down",
-			args: args{
-				baseURL: conf.BaseURL,
-				r:       httptest.NewRequest("GET", "http://localhost:8080/__heartbeat__", nil),
-			},
-			upstreamResponse: &http.Response{},
-			upstreamErr:      fmt.Errorf("Get \"http://localhost:8000/__heartbeat__\": dial tcp 127.0.0.1:8000: connect: connection refused <nil>"),
-			expectedResponse: expectedResponse{
-				status:      http.StatusServiceUnavailable,
-				contentType: "application/json",
-				body:        []byte("{\"status\":false,\"checks\":{\"check_autograph_heartbeat\":false},\"details\":\"failed to request autograph heartbeat from http://localhost:8000/__heartbeat__: Get \\\"http://localhost:8000/__heartbeat__\\\": dial tcp 127.0.0.1:8000: connect: connection refused \\u003cnil\\u003e\"}"),
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var client heartbeatRequester
-			if os.Getenv("MOCK_AUTOGRAPH_CALLS") == string("1") {
-				ctrl := gomock.NewController(t)
-				defer ctrl.Finish()
-
-				clientMock := mock_main.NewMockheartbeatRequester(ctrl)
-				clientMock.EXPECT().Get(tt.args.baseURL+"__heartbeat__").Return(tt.upstreamResponse, tt.upstreamErr)
-				client = clientMock
-			} else {
-				client = &heartbeatClient{&http.Client{}}
-			}
-
-			w := httptest.NewRecorder()
-
-			heartbeatHandler(tt.args.baseURL, client)(w, tt.args.r)
-
-			resp := w.Result()
-			body, _ := ioutil.ReadAll(resp.Body)
-
-			if resp.StatusCode != tt.expectedResponse.status {
-				t.Fatalf("heartbeatHandler() returned unexpected status %v expected %v", resp.StatusCode, tt.expectedResponse.status)
-			}
-			if !bytes.Equal(body, tt.expectedResponse.body) {
-				t.Fatalf("heartbeatHandler() returned body:\n%s\nand expected:\n%s", body, tt.expectedResponse.body)
-			}
-			if resp.Header.Get("Content-Type") != tt.expectedResponse.contentType {
-				t.Fatalf("heartbeatHandler() returned unexpected content type: %s, expected %s", resp.Header.Get("Content-Type"), tt.expectedResponse.contentType)
-			}
-		})
-	}
-
-}
-
-func TestVersion(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://localhost:8080/__version__", nil)
-	w := httptest.NewRecorder()
-	versionHandler(w, req)
-
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
-
-	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
-	}
-	if !bytes.Equal(body, jsonVersion) {
-		t.Fatalf("failed to return version.json contents got %s and expected %s", body, jsonVersion)
-	}
-	if resp.Header.Get("Content-Type") != "application/json" {
-		t.Fatalf("version returned unexpected content type: %s", resp.Header.Get("Content-Type"))
-	}
-}
-
-func TestNotFoundHandler(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://localhost:8080/", nil)
-	w := httptest.NewRecorder()
-	notFoundHandler(w, req)
-
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
-
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
-	}
-	if !bytes.Equal(body, []byte("404 page not found\n")) {
-		t.Fatalf("failed to return 404 contents got %q and expected %q", body, "404 page not found\n")
-	}
-	if resp.Header.Get("Content-Type") != "text/plain; charset=utf-8" {
-		t.Fatalf("notFoundHandler returned unexpected content type: %q", resp.Header.Get("Content-Type"))
 	}
 }
 
@@ -469,6 +325,266 @@ func Test_validateBaseURL(t *testing.T) {
 			if err := validateBaseURL(tt.args.baseURL); (err != nil) != tt.wantErr {
 				t.Errorf("validateBaseURL() error = %v, wantErr %v", err, tt.wantErr)
 			}
+		})
+	}
+}
+
+func Test_preparedServer(t *testing.T) {
+	testServer := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Hello, client")
+	}))
+	testServer.Config = prepareServer()
+	testServer.Start()
+	defer testServer.Close()
+
+	tests := []struct {
+		name              string
+		method            string
+		path              string
+		authHeader        string
+		contentTypeHeader string
+		body              []byte
+		expectedStatus    int
+		expectedBody      string
+		expectedHeaders   http.Header
+	}{
+		{
+			name:           "test GET /__version__ path ok",
+			method:         "GET",
+			path:           "/__version__",
+			body:           []byte(""),
+			expectedStatus: http.StatusOK,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"application/json"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: string(jsonVersion),
+		},
+		{
+			name:           "test GET /__lbheartbeat__ path ok",
+			method:         "GET",
+			path:           "/__lbheartbeat__",
+			body:           []byte(""),
+			expectedStatus: http.StatusOK,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"application/json"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: string(jsonVersion),
+		},
+		{
+			name:           "test GET / path not found",
+			method:         "GET",
+			path:           "/",
+			body:           []byte(""),
+			expectedStatus: http.StatusNotFound,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "404 page not found\n",
+		},
+		{
+			name:           "test GET /blargh path not found",
+			method:         "GET",
+			path:           "/blargh",
+			body:           []byte(""),
+			expectedStatus: http.StatusNotFound,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "404 page not found\n",
+		},
+		{
+			name:           "test GET /__heartbeat__ path service unavailable",
+			method:         "GET",
+			path:           "/__heartbeat__",
+			body:           []byte(""),
+			expectedStatus: http.StatusServiceUnavailable,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"application/json"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: `{"status":false,"checks":{"check_autograph_heartbeat":false},"details":"failed to request autograph heartbeat from http://localhost:8000/__heartbeat__: Get \"http://localhost:8000/__heartbeat__\": dial tcp 127.0.0.1:8000: connect: connection refused"}`,
+		},
+		{
+			name:           "test GET /sign path method not allowed",
+			method:         "GET",
+			path:           "/sign",
+			body:           []byte(""),
+			expectedStatus: http.StatusMethodNotAllowed,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "invalid method\n",
+		},
+		{
+			name:           "test POST /sign path no auth header unauthorized",
+			method:         "POST",
+			path:           "/sign",
+			body:           []byte(""),
+			expectedStatus: http.StatusUnauthorized,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "missing authorization header\n",
+		},
+		{
+			name:           "test POST /sign path short auth header unauthorized",
+			method:         "POST",
+			path:           "/sign",
+			authHeader:     "fkdjkso",
+			body:           []byte(""),
+			expectedStatus: http.StatusUnauthorized,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "missing authorization header\n",
+		},
+		{
+			name:           "test POST /sign path invalid auth header unauthorized",
+			method:         "POST",
+			path:           "/sign",
+			authHeader:     "invalid-a40b512c9d6c09bdfc64989b80c723c5fadabd4ac9a8abf31cbc1c17f401eb40",
+			body:           []byte(""),
+			expectedStatus: http.StatusUnauthorized,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "not authorized\n",
+		},
+		{
+			name:           "test POST /sign path valid auth header no input form field bad request",
+			method:         "POST",
+			path:           "/sign",
+			authHeader:     "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+			body:           []byte(""),
+			expectedStatus: http.StatusBadRequest,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "failed to read form data\n",
+		},
+		{
+			name:              "test POST /sign path valid auth header small input form field form encoded bad request",
+			method:            "POST",
+			path:              "/sign",
+			authHeader:        "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+			contentTypeHeader: "application/x-www-form-urlencoded",
+			body:              []byte("input=Foo"),
+			expectedStatus:    http.StatusBadRequest,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "failed to read form data\n",
+		},
+		{
+			name:              "test POST /sign path valid auth header small input form field form encoded bad request",
+			method:            "POST",
+			path:              "/sign",
+			authHeader:        "c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547",
+			contentTypeHeader: "multipart/form-data; boundary=fd8f34fd6a9c766e",
+			body: []byte(`--fd8f34fd6a9c766e
+Content-Disposition: form-data; name="input"; filename="input"
+Content-Type: application/octet-stream
+
+;
+--fd8f34fd6a9c766e--
+`),
+			expectedStatus: http.StatusBadGateway,
+			expectedHeaders: http.Header{
+				"Content-Type":              []string{"text/plain; charset=utf-8"},
+				"Content-Security-Policy":   []string{"default-src 'none'; object-src 'none';"},
+				"X-Frame-Options":           []string{"DENY"},
+				"X-Content-Type-Options":    []string{"nosniff"},
+				"Strict-Transport-Security": []string{"max-age=31536000;"},
+			},
+			expectedBody: "failed to call autograph for signature\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := http.NewRequest(
+				tt.method,
+				fmt.Sprintf(testServer.URL+tt.path),
+				ioutil.NopCloser(bytes.NewReader(tt.body)),
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if tt.authHeader != "" {
+				req.Header.Add("Authorization", tt.authHeader)
+			}
+			if tt.contentTypeHeader != "" {
+				req.Header.Add("Content-Type", tt.contentTypeHeader)
+			}
+
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			body, err := io.ReadAll(res.Body)
+			res.Body.Close()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if res.StatusCode != tt.expectedStatus {
+				t.Fatalf("returned unexpected status %v expected %v", res.StatusCode, tt.expectedStatus)
+			}
+			if !bytes.Equal([]byte(body), []byte(tt.expectedBody)) {
+				t.Fatalf("returned unexpected body '%s' expected '%s'", string(body), tt.expectedBody)
+			}
+
+			// ignore headers that vary
+			res.Header.Del("Date")
+			res.Header.Del("Content-Length")
+
+			if !reflect.DeepEqual(res.Header, tt.expectedHeaders) {
+				t.Fatalf("returned unexpected headers %+v expected %+v", res.Header, tt.expectedHeaders)
+			}
+
 		})
 	}
 }
