@@ -20,8 +20,7 @@ require (
 	go.mozilla.org/cose v0.0.0-20180718182446-1eaf5a0651d7 // indirect
 	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a // indirect
 	go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef
-	go.mozilla.org/mozlog v0.0.0-20170222151521-4bb13139d403 // indirect
-	go.mozilla.org/mozlogrus v1.0.0
+	go.mozilla.org/mozlogrus v2.0.0+incompatible
 	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7 // indirect
 	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
 	google.golang.org/grpc v1.36.0 // indirect
