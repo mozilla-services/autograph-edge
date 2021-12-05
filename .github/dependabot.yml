@@ -7,9 +7,9 @@ updates:
     timezone: UCT
   open-pull-requests-limit: 99
   reviewers:
-  - g-k
+  - kkleemola, pwnbus
   assignees:
-  - g-k
+  - kkleemola, pwnbus
 - package-ecosystem: gomod
   directory: "/"
   schedule:
@@ -18,6 +18,6 @@ updates:
     timezone: UCT
   open-pull-requests-limit: 99
   reviewers:
-  - g-k
+  - kkleemola, pwnbus
   assignees:
-  - g-k
+  - kkleemola, pwnbus
