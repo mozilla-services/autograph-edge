@@ -13,7 +13,7 @@ require (
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/mozilla-services/yaml v0.0.0-20201007153854-c369669a6625 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.2
 	github.com/ugorji/go v1.1.1 // indirect
 	github.com/youtube/vitess v2.1.1+incompatible // indirect
 	go.mozilla.org/autograph v0.0.0-20181011130409-bbb33dd2ff13
