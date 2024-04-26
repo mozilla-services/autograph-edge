@@ -1,7 +1,6 @@
 module github.com/mozilla-services/autograph-edge
 
 require (
-	cloud.google.com/go v0.78.0 // indirect
 	github.com/ThalesIgnite/crypto11 v0.0.0-20180625122339-a49ec8bedc9a // indirect
 	github.com/aws/aws-sdk-go v1.37.25 // indirect
 	github.com/fatih/color v1.10.0 // indirect
@@ -23,7 +22,7 @@ require (
 	go.mozilla.org/mozlogrus v2.0.0+incompatible
 	go.mozilla.org/pkcs7 v0.0.0-20180321134453-930bd84804d7 // indirect
 	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
-	google.golang.org/grpc v1.36.0 // indirect
+	google.golang.org/grpc v1.53.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )
 
