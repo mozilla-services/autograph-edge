@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"go.mozilla.org/autograph/signer/xpi"
 	"go.mozilla.org/hawk"
 )
 
@@ -30,6 +29,18 @@ type signatureresponse struct {
 	X5U        string `json:"x5u,omitempty"`
 }
 
+// xpiOptions contains specific parameters used to sign XPIs
+type xpiOptions struct {
+	// ID is the add-on ID which is stored in the end-entity subject CN
+	ID string `json:"id"`
+
+	// COSEAlgorithms is an optional list of strings referring to IANA algorithms to use for COSE signatures
+	COSEAlgorithms []string `json:"cose_algorithms"`
+
+	// PKCS7Digest is a string required for /sign/file referring to algorithm to use for the PKCS7 signature digest
+	PKCS7Digest string `json:"pkcs7_digest"`
+}
+
 func callAutograph(auth authorization, body []byte, xff string) (signedBody []byte, err error) {
 	var requests []signaturerequest
 	request := signaturerequest{
@@ -37,7 +48,7 @@ func callAutograph(auth authorization, body []byte, xff string) (signedBody []by
 		KeyID: auth.Signer,
 	}
 	if auth.AddonID != "" {
-		opt := xpi.Options{
+		opt := xpiOptions{
 			ID:          auth.AddonID,
 			PKCS7Digest: "SHA1",
 		}
