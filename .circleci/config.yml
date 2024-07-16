@@ -8,7 +8,7 @@ version: 2.1
 jobs:
   unit-test:
     docker:
-        - image: circleci/golang:1.16-buster
+        - image: cimg/go:1.22
     steps:
       - checkout
 
@@ -26,7 +26,7 @@ jobs:
 
   test:
     docker:
-        - image: circleci/golang:1.16-buster
+        - image: cimg/go:1.22
     environment:
       # docker-compose will default to the project directory which
       # defaults to 'project' on CCI and conflicts with other CCI
