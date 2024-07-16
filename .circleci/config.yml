@@ -8,25 +8,25 @@ version: 2.1
 jobs:
   unit-test:
     docker:
-        - image: circleci/golang:1.16-buster
+        - image: cimg/go:1.22
     steps:
       - checkout
 
       - run:
           name: Run unit tests
           command: |
-              sudo apt -y install libltdl-dev
+              sudo apt update && sudo apt -y install libltdl-dev
               PATH=/usr/local/go/bin:$PATH make test
 
       - run:
           name: Report unit test coverage
           command: |
-              go get github.com/mattn/goveralls
+              go install github.com/mattn/goveralls@latest
               goveralls -coverprofile=coverage.out -service=circle-ci -repotoken $COVERALLS_REPO_TOKEN
 
   test:
     docker:
-        - image: circleci/golang:1.16-buster
+        - image: cimg/go:1.22
     environment:
       # docker-compose will default to the project directory which
       # defaults to 'project' on CCI and conflicts with other CCI
@@ -34,8 +34,7 @@ jobs:
       COMPOSE_PROJECT_NAME: autograph_edge
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 18.09.3
+      - setup_remote_docker
 
       - run:
           name: Install Autograph
@@ -69,8 +68,7 @@ jobs:
               apk add git openssh
 
       - checkout
-      - setup_remote_docker:
-          version: 18.09.3
+      - setup_remote_docker
 
       - run:
           name: Create a version.json
