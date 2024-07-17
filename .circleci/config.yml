@@ -51,6 +51,10 @@ jobs:
           name: Sign test APKs and XPIs and verify the APK
           command: |
               docker-compose run test
+              find /
+
+      - store_artifacts:
+          path: /app/signed.apk
 
       - run:
           name: stop and clean up docker-compose containers and images

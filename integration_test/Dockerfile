@@ -23,4 +23,4 @@ ADD . /app
 
 USER app
 WORKDIR /app
-CMD /bin/bash -c '/app/sign_test_apk.sh edge 8080 && /app/sign_test_xpi.sh edge 8080 && /app/verify_apk.sh /tmp/signed.apk'
+CMD /bin/bash -c '/app/sign_test_apk.sh edge 8080 && /app/sign_test_xpi.sh edge 8080 && /app/verify_apk.sh /app/signed.apk'

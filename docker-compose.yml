@@ -22,3 +22,5 @@ services:
       context: ./integration_test
     links:
       - edge
+    volumes:
+      - /tmp:/tmp
