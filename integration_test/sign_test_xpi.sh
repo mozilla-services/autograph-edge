@@ -5,10 +5,6 @@ set -ev
 host=$1
 port=$2
 
-while ! nc -z "$host" "$port"; do
-  echo -n "."
-  sleep 1 # wait for a sec before checking again
-done
 curl -F "input=@test.xpi" -o /tmp/signed-default.xpi \
   -H "Authorization: c4180d2963fffdcd1cd5a1a343225288b964d8934b809a7d76941ccf67cc8547" \
   "http://$host:$port/sign"

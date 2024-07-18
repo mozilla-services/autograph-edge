@@ -4,11 +4,18 @@ services:
     image: mozilla/autograph
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/__heartbeat__"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
   edge:
     build:
       context: .
-    links:
-      - app
+    depends_on:
+      app:
+        condition: service_healthy
     ports:
       - "8080:8080"
     command:
@@ -17,8 +24,15 @@ services:
         "-u",
         "http://app:8000/",
       ]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__heartbeat__"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
   test:
     build:
       context: ./integration_test
-    links:
-      - edge
+    depends_on:
+      edge:
+        condition: service_healthy
