@@ -58,15 +58,8 @@ jobs:
 
   build:
     docker:
-      - image: docker:18.02.0-ce
-    working_directory: /dockerflow
+        - image: cimg/go:1.22
     steps:
-      - run:
-          name: Install git
-          command: |
-              apk update
-              apk add git openssh
-
       - checkout
       - setup_remote_docker
 
@@ -89,21 +82,21 @@ jobs:
       # required since Workflows do not have the same remote docker instance.
       - run:
           name: docker save app:build
-          command: mkdir -p /cache; docker save -o /cache/docker.tar "app:build"
+          command: mkdir -p docker-cache; docker save -o docker-cache/docker.tar "app:build"
       - save_cache:
           key: v1-{{ .Branch }}-{{epoch}}
           paths:
-            - /cache/docker.tar
+            - docker-cache/docker.tar
   deploy:
     docker:
-      - image: docker:18.02.0-ce
+      - image: cimg/deploy:2024.03.1
     steps:
       - setup_remote_docker
       - restore_cache:
           key: v1-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load -i /cache/docker.tar
+          command: docker load -i docker-cache/docker.tar
 
       - run:
           name: Deploy to Dockerhub
@@ -151,4 +144,4 @@ workflows:
             tags:
               only: /.*/
             branches:
-              only: master
+              only: main
