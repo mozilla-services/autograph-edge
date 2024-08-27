@@ -17,9 +17,7 @@ RUN echo "deb-src http://deb.debian.org/debian/ bookworm-backports main" >> /etc
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y install --no-install-recommends \
-        clang \
         gcc \
-        libltdl-dev \
         golang-${GO_VERSION} \
         curl \
         ca-certificates && \
