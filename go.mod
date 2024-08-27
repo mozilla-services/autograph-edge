@@ -15,7 +15,7 @@ require (
 	github.com/aws/aws-sdk-go v1.37.25 // indirect
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/golang/protobuf v1.4.3 // indirect
+	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/goware/prefixer v0.0.0-20160118172347-395022866408 // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c // indirect
@@ -37,7 +37,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210222152913-aa3ee6e6a81c // indirect
 	google.golang.org/grpc v1.36.0 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )
 
 go 1.22.5
