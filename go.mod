@@ -3,7 +3,7 @@ module github.com/mozilla-services/autograph-edge
 require (
 	github.com/golang/mock v1.6.0
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.3
 	go.mozilla.org/hawk v0.0.0-20160602144717-b9704677ebef
 	go.mozilla.org/mozlogrus v2.0.0+incompatible
 	go.mozilla.org/sops v0.0.0-20180531162322-5e8d1390eb4c
