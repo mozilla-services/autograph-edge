@@ -40,10 +40,10 @@ ARG VERSION_TAG_NAME
 ENV GO111MODULE=on
 ENV CGO_ENABLED=1
 
-ADD --keep-git-dir=true . /app/src/autograph
+ADD . /app/src
 
-RUN /app/src/autograph/version.sh > /app/version.json
-RUN cd /app/src/autograph && go install .
+RUN /app/src/version.sh > /app/version.json
+RUN cd /app/src && go install .
 
 #------------------------------------------------------------------------------
 # Deployment Stage
@@ -52,9 +52,9 @@ FROM base
 EXPOSE 8080
 
 # Copy compiled appliation from the builder.
-ADD . /app/src/autograph
+RUN mkdir /app
 ADD autograph-edge.yaml /app
-COPY --from=builder /app/version.json /app/version.json
+COPY --from=builder /app/version.json /app
 COPY --from=builder /go/bin/autograph-edge /usr/local/bin/autograph-edge
 
 # Setup the worker and entrypoint.
