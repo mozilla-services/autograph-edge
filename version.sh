@@ -9,7 +9,7 @@ if [ -z "${VERSION_SOURCE_URL}" ]; then
   VERSION_SOURCE_URL="https://github.com/mozilla-services/autograph-edge.git"
 fi
 
-cat << EOF
+cat << EOF > ${SRCDIR}/version.json
 {
   "source": "${VERSION_SOURCE_URL}",
   "commit": "${VERSION_COMMIT_HASH}",
