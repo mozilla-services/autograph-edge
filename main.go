@@ -45,7 +45,7 @@ type authorization struct {
 	AddonCOSEAlgorithms []string
 }
 
-//go:generate ./version.sh > version.json
+//go:generate ./version.sh
 //go:embed "version.json"
 var jsonVersion []byte
 
