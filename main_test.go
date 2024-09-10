@@ -330,6 +330,9 @@ func Test_validateBaseURL(t *testing.T) {
 }
 
 func Test_preparedServer(t *testing.T) {
+	// For the purpose of testing - ensure we're using IPv4.
+	conf.BaseURL = "http://127.0.0.1:8000/"
+
 	testServer := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, client")
 	}))
@@ -421,7 +424,7 @@ func Test_preparedServer(t *testing.T) {
 				"X-Content-Type-Options":    []string{"nosniff"},
 				"Strict-Transport-Security": []string{"max-age=31536000;"},
 			},
-			expectedBody: `{"status":false,"checks":{"check_autograph_heartbeat":false},"details":"failed to request autograph heartbeat from http://localhost:8000/__heartbeat__: Get \"http://localhost:8000/__heartbeat__\": dial tcp 127.0.0.1:8000: connect: connection refused"}`,
+			expectedBody: `{"status":false,"checks":{"check_autograph_heartbeat":false},"details":"failed to request autograph heartbeat from http://127.0.0.1:8000/__heartbeat__: Get \"http://127.0.0.1:8000/__heartbeat__\": dial tcp 127.0.0.1:8000: connect: connection refused"}`,
 		},
 		{
 			name:           "test GET /sign path method not allowed",
