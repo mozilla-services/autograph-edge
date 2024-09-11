@@ -37,7 +37,7 @@ jobs:
 
       - name: Generate version.json
         shell: bash
-        run: version.sh | tee version.json
+        run: ./version.sh | tee version.json
 
       - name: Pull autograph image
         shell: bash

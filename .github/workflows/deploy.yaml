@@ -55,7 +55,7 @@ jobs:
 
       - name: Generate version.json
         shell: bash
-        run: version.sh | tee version.json
+        run: ./version.sh | tee version.json
 
       - name: Build and push
         uses: docker/build-push-action@v6
