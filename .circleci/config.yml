@@ -31,6 +31,10 @@ jobs:
       - setup_remote_docker
 
       - run:
+          name: Create a version.json
+          command: ./version.sh | tee version.json
+
+      - run:
           name: Install Autograph
           command: |
               docker pull mozilla/autograph
@@ -58,11 +62,12 @@ jobs:
       - setup_remote_docker
 
       - run:
+          name: Create a version.json
+          command: ./version.sh | tee version.json
+
+      - run:
           name: Build Docker image
-          command: | 
-            docker build -t app:build . \
-              --build-arg VERSION_BUILD_URL="$CIRCLE_BUILD_URL" \
-              --build-arg VERSION_TAG_NAME="$CIRCLE_TAG"
+          command: docker build -t app:build .
 
       # save the built docker container into CircleCI's cache. This is
       # required since Workflows do not have the same remote docker instance.

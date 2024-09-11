@@ -33,16 +33,11 @@ RUN apt-get update && \
 # Build Stage
 #------------------------------------------------------------------------------
 FROM base AS builder
-ARG VERSION_COMMIT_HASH
-ARG VERSION_SOURCE_URL
-ARG VERSION_BUILD_URL
-ARG VERSION_TAG_NAME
 ENV GO111MODULE=on
 ENV CGO_ENABLED=1
 
 ADD . /app/src
 
-RUN cd /app/src && go generate
 RUN cd /app/src && go install .
 
 #------------------------------------------------------------------------------
@@ -54,7 +49,7 @@ EXPOSE 8080
 # Copy compiled appliation from the builder.
 RUN mkdir /app
 ADD autograph-edge.yaml /app
-COPY --from=builder /app/src/version.json /app
+ADD version.json /app
 COPY --from=builder /go/bin/autograph-edge /usr/local/bin/autograph-edge
 
 # Setup the worker and entrypoint.
