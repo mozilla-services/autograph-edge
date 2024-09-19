@@ -28,12 +28,13 @@ jobs:
         with:
           images: |
             ${{ vars.DOCKERHUB_REPO }}
-            ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY}}/autograph-edge
+            ${{ vars.GCP_PROJECT_ID && format('{0}-docker.pkg.dev/{1}/{2}/autograph-edge', vars.GAR_LOCATION, vars.GCP_PROJECT_ID, vars.GAR_REPOSITORY) }}
           tags: |
             type=semver,pattern={{raw}}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - id: gcp-auth
+        if: ${{ vars.GCP_PROJECT_ID }}
         uses: google-github-actions/auth@v2
         with:
           token_format: 'access_token'
@@ -41,6 +42,7 @@ jobs:
           workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Login to Google Artifact Registry
+        if: ${{ vars.GCP_PROJECT_ID }}
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.GAR_LOCATION }}-docker.pkg.dev
@@ -48,6 +50,7 @@ jobs:
           password: ${{ steps.gcp-auth.outputs.access_token }}
 
       - name: Login to Dockerhub
+        if: ${{ vars.DOCKERHUB_REPO }}
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
