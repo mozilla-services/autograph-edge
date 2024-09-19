@@ -31,7 +31,7 @@ cat << EOF
 {
   "source": "${VERSION_SOURCE_URL}",
   "commit": "${VERSION_COMMIT_HASH}",
-  "version: "${VERSION_TAG_NAME}",
-  "build: "${VERSION_BUILD_URL}",
+  "version": "${VERSION_TAG_NAME}",
+  "build": "${VERSION_BUILD_URL}"
 }
 EOF
