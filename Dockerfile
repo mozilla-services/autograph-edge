@@ -3,7 +3,7 @@ ARG GO_VERSION=1.22
 #------------------------------------------------------------------------------
 # Base Debian Image
 #------------------------------------------------------------------------------
-FROM debian:bookworm as base
+FROM debian:bookworm AS base
 ARG GO_VERSION
 
 ENV DEBIAN_FRONTEND='noninteractive' \
@@ -20,6 +20,7 @@ RUN apt-get update && \
         clang \
         gcc \
         libltdl-dev \
+        git \
         golang-${GO_VERSION} \
         curl \
         ca-certificates && \
@@ -31,13 +32,13 @@ RUN apt-get update && \
 #------------------------------------------------------------------------------
 # Build Stage
 #------------------------------------------------------------------------------
-FROM base as builder
-ENV GO111MODULE on
-ENV CGO_ENABLED 1
+FROM base AS builder
+ENV GO111MODULE=on
+ENV CGO_ENABLED=1
 
-ADD . /app/src/autograph
+ADD . /app/src
 
-RUN cd /app/src/autograph && go install .
+RUN cd /app/src && go install .
 
 #------------------------------------------------------------------------------
 # Deployment Stage
@@ -46,7 +47,7 @@ FROM base
 EXPOSE 8080
 
 # Copy compiled appliation from the builder.
-ADD . /app/src/autograph
+RUN mkdir /app
 ADD autograph-edge.yaml /app
 ADD version.json /app
 COPY --from=builder /go/bin/autograph-edge /usr/local/bin/autograph-edge

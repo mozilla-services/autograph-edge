@@ -34,7 +34,11 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-      
+
+      - name: Generate version.json
+        shell: bash
+        run: ./version.sh | tee version.json
+
       - name: Pull autograph image
         shell: bash
         run: docker pull mozilla/autograph
