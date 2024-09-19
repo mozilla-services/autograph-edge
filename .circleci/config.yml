@@ -78,33 +78,6 @@ jobs:
           key: v1-{{ .Branch }}-{{epoch}}
           paths:
             - docker-cache/docker.tar
-  deploy:
-    docker:
-      - image: cimg/deploy:2024.03.1
-    steps:
-      - setup_remote_docker
-      - restore_cache:
-          key: v1-{{.Branch}}
-      - run:
-          name: Restore Docker image cache
-          command: docker load -i docker-cache/docker.tar
-
-      - run:
-          name: Deploy to Dockerhub
-          command: |
-            # deploy master
-            if [ "${CIRCLE_BRANCH}" == "main" ]; then
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker tag app:build ${DOCKERHUB_REPO}:latest
-              docker push ${DOCKERHUB_REPO}:latest
-            elif  [ ! -z "${CIRCLE_TAG}" ]; then
-            # deploy a release tag...
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              echo "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-              docker images
-              docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
-            fi
 
 workflows:
   version: 2
@@ -127,12 +100,3 @@ workflows:
             tags:
               only: /.*/
 
-      - deploy:
-          requires:
-            - test
-            - build
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              only: main
