@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - main
-    tags:
-      - '[0-9]+.[0-9a-z]+.[0-9a-z]+'
+  release:
+    types:
+      - prereleased
+      - released
 
 jobs:
   docker:
@@ -26,12 +28,16 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
+          flavor:
+            # don't automatically tag with `latest`; we do this conditionally in the `tags` section
+            latest=false
           images: |
             ${{ vars.DOCKERHUB_REPO }}
             ${{ vars.GCP_PROJECT_ID && format('{0}-docker.pkg.dev/{1}/{2}/autograph-edge', vars.GAR_LOCATION, vars.GCP_PROJECT_ID, vars.GAR_REPOSITORY) }}
           tags: |
-            type=semver,pattern={{raw}}
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{raw}},enable=${{ github.event_name == 'release' && github.event.action == 'released' }}
+            type=semver,pattern={{raw}}-prerelease,enable=${{ github.event_name == 'release' && github.event.action == 'prereleased' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' }}
 
       - id: gcp-auth
         if: ${{ vars.GCP_PROJECT_ID }}
