@@ -329,6 +329,22 @@ func Test_validateBaseURL(t *testing.T) {
 	}
 }
 
+func TestPrepareServerDefaults(t *testing.T) {
+	testServer := prepareServer("", 8080)
+
+	if testServer.Addr != ":8080" {
+		t.Errorf("host %s and port %d != %s", "", 8080, testServer.Addr)
+	}
+}
+
+func TestPrepareServerOptions(t *testing.T) {
+	testServer := prepareServer("1.2.3.4", 5678)
+
+	if testServer.Addr != "1.2.3.4:5678" {
+		t.Errorf("host %s and port %d != %s", "1234", 5678, testServer.Addr)
+	}
+}
+
 func Test_preparedServer(t *testing.T) {
 	// For the purpose of testing - ensure we're using IPv4.
 	conf.BaseURL = "http://127.0.0.1:8000/"
@@ -336,7 +352,7 @@ func Test_preparedServer(t *testing.T) {
 	testServer := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, client")
 	}))
-	testServer.Config = prepareServer()
+	testServer.Config = prepareServer("", 0)
 	testServer.Start()
 	defer testServer.Close()
 
