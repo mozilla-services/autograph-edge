@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -39,7 +39,7 @@ func Test_heartbeatHandler(t *testing.T) {
 			upstreamResponse: &http.Response{
 				Status:     http.StatusText(http.StatusOK),
 				StatusCode: http.StatusOK,
-				Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+				Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),
 			},
 			upstreamErr: nil,
 			expectedResponse: expectedResponse{
@@ -57,7 +57,7 @@ func Test_heartbeatHandler(t *testing.T) {
 			upstreamResponse: &http.Response{
 				Status:     http.StatusText(http.StatusBadGateway),
 				StatusCode: http.StatusBadGateway,
-				Body:       ioutil.NopCloser(bytes.NewReader([]byte("{}"))),
+				Body:       io.NopCloser(bytes.NewReader([]byte("{}"))),
 			},
 			upstreamErr: nil,
 			expectedResponse: expectedResponse{
@@ -100,7 +100,7 @@ func Test_heartbeatHandler(t *testing.T) {
 			heartbeatHandler(tt.args.baseURL, client)(w, tt.args.r)
 
 			resp := w.Result()
-			body, _ := ioutil.ReadAll(resp.Body)
+			body, _ := io.ReadAll(resp.Body)
 
 			if resp.StatusCode != tt.expectedResponse.status {
 				t.Fatalf("heartbeatHandler() returned unexpected status %v expected %v", resp.StatusCode, tt.expectedResponse.status)
@@ -122,7 +122,7 @@ func TestVersion(t *testing.T) {
 	versionHandler(w, req)
 
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)
@@ -141,7 +141,7 @@ func TestNotFoundHandler(t *testing.T) {
 	notFoundHandler(w, req)
 
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("returned unexpected status %v expected %v", resp.StatusCode, http.StatusOK)

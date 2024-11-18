@@ -6,9 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -141,7 +141,7 @@ func prepareServer() *http.Server {
 // loadFromFile reads a configuration from a local file
 func (c *configuration) loadFromFile(path string) error {
 	var confData []byte
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -184,7 +184,7 @@ func httpError(w http.ResponseWriter, r *http.Request, errorCode int, errorMessa
 	// request body is read before writing a response.
 	// https://github.com/golang/go/issues/15789
 	if r.Body != nil {
-		io.Copy(ioutil.Discard, r.Body)
+		io.Copy(io.Discard, r.Body)
 		r.Body.Close()
 	}
 	http.Error(w, msg, errorCode)
