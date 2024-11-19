@@ -31,6 +31,8 @@ var (
 )
 
 type configuration struct {
+	Port           int
+	Host           string
 	BaseURL        string `yaml:"autograph_base_url"`
 	Authorizations []authorization
 }
@@ -56,9 +58,9 @@ func init() {
 
 func main() {
 	parseArgsAndLoadConf()
-	server := prepareServer()
+	server := prepareServer(conf.Host, conf.Port)
 
-	log.Infof("starting autograph-edge on port 8080 with upstream autograph base URL %s", conf.BaseURL)
+	log.Infof("starting autograph-edge on %s:%d with upstream autograph base URL %s", conf.Host, conf.Port, conf.BaseURL)
 	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
@@ -97,23 +99,32 @@ func parseArgsAndLoadConf() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if conf.Host == "" {
+		conf.Host = "0.0.0.0"
+	}
+	if conf.Port == 0 {
+		conf.Port = 8080
+	}
 }
 
-func prepareServer() *http.Server {
-	http.Handle("/sign",
+func prepareServer(host string, port int) *http.Server {
+	mux := http.NewServeMux()
+
+	mux.Handle("/sign",
 		handleWithMiddleware(
 			http.HandlerFunc(sigHandler),
 			setRequestID(),
 			setResponseHeaders(),
 		),
 	)
-	http.Handle("/__version__",
+	mux.Handle("/__version__",
 		handleWithMiddleware(
 			http.HandlerFunc(versionHandler),
 			setResponseHeaders(),
 		),
 	)
-	http.Handle("/__heartbeat__",
+	mux.Handle("/__heartbeat__",
 		handleWithMiddleware(
 			http.HandlerFunc(
 				heartbeatHandler(conf.BaseURL, &heartbeatClient{&http.Client{}}),
@@ -121,20 +132,21 @@ func prepareServer() *http.Server {
 			setResponseHeaders(),
 		),
 	)
-	http.Handle("/__lbheartbeat__",
+	mux.Handle("/__lbheartbeat__",
 		handleWithMiddleware(
 			http.HandlerFunc(versionHandler),
 			setResponseHeaders(),
 		),
 	)
-	http.Handle("/",
+	mux.Handle("/",
 		handleWithMiddleware(
 			http.HandlerFunc(notFoundHandler),
 			setResponseHeaders(),
 		),
 	)
 	return &http.Server{
-		Addr: ":8080",
+		Addr:    fmt.Sprintf("%s:%d", host, port),
+		Handler: mux,
 	}
 }
 
