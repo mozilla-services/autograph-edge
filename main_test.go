@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -567,7 +566,7 @@ Content-Type: application/octet-stream
 			req, err := http.NewRequest(
 				tt.method,
 				fmt.Sprintf(testServer.URL+tt.path),
-				ioutil.NopCloser(bytes.NewReader(tt.body)),
+				io.NopCloser(bytes.NewReader(tt.body)),
 			)
 			if err != nil {
 				t.Fatal(err)
