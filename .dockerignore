@@ -3,3 +3,6 @@ integration_test/
 coverage.out
 docker-compose.yml
 Dockerfile
+
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
