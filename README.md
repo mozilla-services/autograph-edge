@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> This repository has been archived since Oct 8, 2025 as there are no more users. More details can be found in [AUT-450](https://mozilla-hub.atlassian.net/browse/AUT-450). Work is planned to support signing from GitHub Actions or Bitrise using hosted github action runner ([AUT-468](https://mozilla-hub.atlassian.net/browse/AUT-468)) if Autograph signing is required outside of the supported relying parties.
+
 [![CircleCI](https://circleci.com/gh/mozilla-services/autograph-edge.svg?style=svg)](https://circleci.com/gh/mozilla-services/autograph-edge)
 
 [![Coverage Status](https://coveralls.io/repos/github/mozilla-services/autograph-edge/badge.svg?branch=main)](https://coveralls.io/github/mozilla-services/autograph-edge?branch=main)
